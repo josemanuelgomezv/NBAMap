@@ -144,6 +144,16 @@
     .s-cell.bold{font-weight:700;color:var(--text)}
     .s-pct{font-size:11px;text-align:center;color:var(--s-pct-c);font-weight:600}
 
+    /* ── Refresh button ── */
+    #refresh-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-left-tab);border-bottom:1px solid var(--border);flex-shrink:0}
+    #refresh-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:10px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.04em}
+    #refresh-btn:hover:not(:disabled){background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+    #refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+    #refresh-icon{display:inline-block;transition:transform .6s}
+    #refresh-btn.spinning #refresh-icon{animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #refresh-status{font-size:9px;color:var(--text-3)}
+
     /* ── Map (CENTER) ── */
     #map-area{flex:1;display:flex;flex-direction:column;padding:10px 14px 8px;overflow:hidden;min-width:0;background:var(--bg-center);transition:background .3s}
     #map-wrap{flex:1;min-height:0;display:flex;align-items:center;background:var(--bg-center);border-radius:12px}
@@ -184,32 +194,127 @@
     .g-opp-badge{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;flex-shrink:0;overflow:hidden;padding:2px}
     .g-score{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1}
     .g-date{font-size:9px;color:var(--text-3);min-width:38px;text-align:right}
+
+    /* ══════════════════════════════════════════════
+       MOBILE  (≤ 768px)
+    ══════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      html,body{height:100%;overflow:hidden}
+
+      /* Header: compact */
+      #header{padding:8px 14px}
+      #header-title .bebas{font-size:17px !important;letter-spacing:1px !important}
+      #header-title .subtitle{display:none}
+      #header-legend{display:none !important}
+      #theme-toggle .toggle-label{display:none}
+
+      /* Hide desktop 3-panel layout */
+      #body{display:none !important}
+
+      /* Mobile view container */
+      #mobile-view{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+
+      /* Mobile panels */
+      .m-panel{display:none;flex:1;overflow:hidden;flex-direction:column}
+      .m-panel.active{display:flex}
+
+      /* Standings mobile */
+      #m-standings{background:var(--bg-left)}
+      #m-standings #standings-tabs{display:flex}
+      #m-standings #refresh-bar{display:flex}
+      #m-standings #standings-scroll{flex:1;overflow-y:auto}
+
+      /* Map mobile */
+      #m-map{background:var(--bg-center);padding:8px}
+      #m-map #map-wrap{flex:1;border-radius:10px;overflow:hidden}
+      #m-map #map-hint{font-size:12px;padding:6px 0;text-align:center;color:var(--text-3)}
+
+      /* Team panel mobile */
+      #m-panel{background:var(--bg-right)}
+      #m-panel #panel-empty{height:100%;display:flex}
+      #m-panel #panel-header{display:block}
+      #m-panel #panel-scroll{flex:1;overflow-y:auto;padding:12px}
+
+      /* Bottom nav */
+      #bottom-nav{
+        display:flex;
+        flex-shrink:0;
+        background:var(--bg-header);
+        border-top:1px solid var(--border);
+        padding-bottom:env(safe-area-inset-bottom, 0px);
+      }
+      .nav-tab{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        padding:8px 4px 6px;
+        gap:3px;
+        cursor:pointer;
+        color:var(--text-3);
+        font-size:9px;
+        font-weight:600;
+        letter-spacing:.05em;
+        text-transform:uppercase;
+        border:none;
+        background:transparent;
+        font-family:'DM Sans',sans-serif;
+        transition:color .15s;
+        position:relative;
+      }
+      .nav-tab.active{color:var(--accent)}
+      .nav-tab.active::after{
+        content:'';
+        position:absolute;
+        top:0;left:50%;transform:translateX(-50%);
+        width:28px;height:2px;
+        background:var(--accent);
+        border-radius:0 0 3px 3px;
+      }
+      .nav-icon{font-size:20px;line-height:1}
+      /* badge on equipo tab */
+      #nav-equipo{position:relative}
+      #equipo-badge{
+        display:none;
+        position:absolute;top:5px;right:calc(50% - 18px);
+        width:8px;height:8px;border-radius:50%;
+        background:var(--accent);
+      }
+      #equipo-badge.visible{display:block}
+    }
+
+    /* Desktop: hide mobile elements */
+    @media (min-width: 769px) {
+      #mobile-view{display:none !important}
+      #bottom-nav{display:none !important}
+    }
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div id="header">
-  <div style="display:flex;align-items:center;gap:11px">
+  <div id="header-title" style="display:flex;align-items:center;gap:11px">
     <span style="font-size:24px">🏀</span>
     <div>
       <div class="bebas" style="font-size:22px;letter-spacing:2px;line-height:1;color:var(--accent)">NBA UNITED STATES MAP</div>
-      <div style="color:var(--text-2);font-size:11px;margin-top:1px">Clasificación · Equipos · Jugadores · Resultados</div>
+      <div class="subtitle" style="color:var(--text-2);font-size:11px;margin-top:1px">Clasificación · Equipos · Jugadores · Resultados</div>
     </div>
   </div>
-  <div style="display:flex;gap:12px;align-items:center">
+  <div id="header-legend" style="display:flex;gap:12px;align-items:center">
     <span style="font-size:11px;color:var(--text-3)"><span class="ldot" id="ldot-team" style="background:#81c784;border:1px solid #4caf50"></span>Con equipo</span>
     <span style="font-size:11px;color:var(--text-3)"><span class="ldot" style="background:var(--accent)"></span>Seleccionado</span>
     <button id="clear-btn" onclick="clearSelection()" style="display:none;padding:2px 9px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Limpiar</button>
     <button id="theme-toggle" onclick="toggleTheme()">
       <span id="theme-icon">🌙</span>
-      <span id="theme-label">Oscuro</span>
+      <span id="theme-label" class="toggle-label">Oscuro</span>
       <div class="toggle-track"><div class="toggle-thumb"></div></div>
     </button>
   </div>
 </div>
 
-<!-- BODY -->
+<!-- DESKTOP BODY -->
 <div id="body">
 
   <!-- LEFT: Standings -->
@@ -218,6 +323,12 @@
       <div class="s-tab active" id="tab-east" onclick="showConf('east')">ESTE</div>
       <div class="s-tab" id="tab-west" onclick="showConf('west')">OESTE</div>
       <div class="s-tab" id="tab-all" onclick="showConf('all')">TODAS</div>
+    </div>
+    <div id="refresh-bar">
+      <span id="refresh-status">Datos: Abr 2026</span>
+      <button id="refresh-btn" onclick="refreshData()">
+        <span id="refresh-icon">↻</span> ACTUALIZAR
+      </button>
     </div>
     <div id="standings-scroll"></div>
   </div>
@@ -248,6 +359,67 @@
   </div>
 </div>
 
+<!-- MOBILE VIEW -->
+<div id="mobile-view">
+
+  <!-- Tab: Clasificación -->
+  <div class="m-panel active" id="m-standings">
+    <div style="flex-shrink:0">
+      <div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg-left-tab)">
+        <div class="s-tab active" id="tab-east-m" onclick="showConf('east')">ESTE</div>
+        <div class="s-tab" id="tab-west-m" onclick="showConf('west')">OESTE</div>
+        <div class="s-tab" id="tab-all-m" onclick="showConf('all')">TODAS</div>
+      </div>
+      <div id="refresh-bar-m" style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--bg-left-tab);border-bottom:1px solid var(--border)">
+        <span id="refresh-status-m" style="font-size:9px;color:var(--text-3)">Datos: Abr 2026</span>
+        <button id="refresh-btn-m" onclick="refreshData()" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:10px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer">
+          <span id="refresh-icon-m">↻</span> ACTUALIZAR
+        </button>
+      </div>
+    </div>
+    <div id="standings-scroll-m" style="flex:1;overflow-y:auto;background:var(--bg-left)"></div>
+  </div>
+
+  <!-- Tab: Mapa -->
+  <div class="m-panel" id="m-map">
+    <div id="map-wrap-m" style="flex:1;min-height:0;display:flex;align-items:center;background:var(--bg-center);border-radius:10px;overflow:hidden">
+      <svg id="map-svg-m" style="width:100%;height:100%"></svg>
+    </div>
+    <div id="map-hint-m" style="text-align:center;font-size:12px;color:var(--text-3);padding:6px 0">Toca un estado para ver sus equipos</div>
+  </div>
+
+  <!-- Tab: Equipo -->
+  <div class="m-panel" id="m-panel">
+    <div id="panel-empty-m" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px">
+      <div style="font-size:46px;margin-bottom:12px">🏀</div>
+      <p style="color:var(--text-3);font-size:13px;line-height:1.8">Selecciona un estado en el mapa<br>para ver sus equipos</p>
+    </div>
+    <div id="panel-header-m" style="display:none;padding:12px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div style="width:28px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:5px"></div>
+      <div id="panel-state-m" class="bebas" style="font-size:22px;letter-spacing:1px;line-height:1;color:var(--text)"></div>
+      <div id="panel-count-m" style="font-size:11px;color:var(--text-3);margin-top:2px"></div>
+    </div>
+    <div id="panel-scroll-m" style="display:none;flex:1;overflow-y:auto;padding:12px"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav id="bottom-nav">
+  <button class="nav-tab active" id="nav-clasificacion" onclick="switchTab('clasificacion')">
+    <span class="nav-icon">🏆</span>
+    <span>Clasificación</span>
+  </button>
+  <button class="nav-tab" id="nav-mapa" onclick="switchTab('mapa')">
+    <span class="nav-icon">🗺️</span>
+    <span>Mapa</span>
+  </button>
+  <button class="nav-tab" id="nav-equipo" onclick="switchTab('equipo')">
+    <span class="nav-icon">🏀</span>
+    <span>Equipo</span>
+    <div id="equipo-badge"></div>
+  </button>
+</nav>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA
@@ -275,6 +447,42 @@ const GAMES = [
   {home:"OKC",away:"PHX",hs:103,as:135,date:"13 Abr"},
   {home:"SAS",away:"DEN",hs:118,as:128,date:"13 Abr"},
 ];
+
+
+// Upcoming games (fetched live via refreshData, seeded with known schedule)
+let NEXT_GAMES = {
+  // abbr → {opp, isHome, date, time}
+  "OKC": {opp:"DEN", isHome:true,  date:"25 Abr", time:"21:30"},
+  "SAS": {opp:"HOU", isHome:false, date:"25 Abr", time:"20:00"},
+  "DET": {opp:"BOS", isHome:true,  date:"25 Abr", time:"19:00"},
+  "BOS": {opp:"DET", isHome:false, date:"25 Abr", time:"19:00"},
+  "NYK": {opp:"PHI", isHome:true,  date:"25 Abr", time:"19:30"},
+  "PHI": {opp:"NYK", isHome:false, date:"25 Abr", time:"19:30"},
+  "MIA": {opp:"ATL", isHome:false, date:"25 Abr", time:"20:00"},
+  "ATL": {opp:"MIA", isHome:true,  date:"25 Abr", time:"20:00"},
+  "LAL": {opp:"GSW", isHome:true,  date:"25 Abr", time:"22:00"},
+  "GSW": {opp:"LAL", isHome:false, date:"25 Abr", time:"22:00"},
+  "DEN": {opp:"OKC", isHome:false, date:"25 Abr", time:"21:30"},
+  "HOU": {opp:"SAS", isHome:true,  date:"25 Abr", time:"20:00"},
+  "CLE": {opp:"MIL", isHome:true,  date:"26 Abr", time:"19:00"},
+  "MIL": {opp:"CLE", isHome:false, date:"26 Abr", time:"19:00"},
+  "MIN": {opp:"POR", isHome:true,  date:"26 Abr", time:"21:00"},
+  "POR": {opp:"MIN", isHome:false, date:"26 Abr", time:"21:00"},
+  "LAC": {opp:"PHX", isHome:true,  date:"26 Abr", time:"22:30"},
+  "PHX": {opp:"LAC", isHome:false, date:"26 Abr", time:"22:30"},
+  "TOR": {opp:"CHA", isHome:true,  date:"26 Abr", time:"19:30"},
+  "CHA": {opp:"TOR", isHome:false, date:"26 Abr", time:"19:30"},
+  "CHI": {opp:"DAL", isHome:false, date:"26 Abr", time:"20:30"},
+  "DAL": {opp:"CHI", isHome:true,  date:"26 Abr", time:"20:30"},
+  "NOP": {opp:"SAC", isHome:true,  date:"26 Abr", time:"20:00"},
+  "SAC": {opp:"NOP", isHome:false, date:"26 Abr", time:"20:00"},
+  "ORL": {opp:"WAS", isHome:true,  date:"26 Abr", time:"19:00"},
+  "WAS": {opp:"ORL", isHome:false, date:"26 Abr", time:"19:00"},
+  "IND": {opp:"BKN", isHome:true,  date:"26 Abr", time:"19:00"},
+  "BKN": {opp:"IND", isHome:false, date:"26 Abr", time:"19:00"},
+  "UTA": {opp:"MEM", isHome:true,  date:"26 Abr", time:"21:00"},
+  "MEM": {opp:"UTA", isHome:false, date:"26 Abr", time:"21:00"},
+};
 
 // Real standings from live API (Apr 2026)
 const STANDINGS_RAW = [
@@ -428,14 +636,88 @@ function toggleTheme() {
   isDark = !isDark;
   document.body.classList.toggle('dark', isDark);
   document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
-  document.getElementById('theme-label').textContent = isDark ? 'Claro' : 'Oscuro';
+  const lbl = document.getElementById('theme-label'); if(lbl) lbl.textContent = isDark ? 'Claro' : 'Oscuro';
   document.getElementById('ldot-team').style.background = isDark ? '#183020' : '#81c784';
   document.getElementById('ldot-team').style.borderColor = isDark ? '#2a4a38' : '#4caf50';
-  // Refresh map colors
-  d3.selectAll('.state').attr('fill', function(d) {
-    const name = NAMES[d.id.toString().padStart(2,'0')];
-    return getStateFill(name, false);
-  });
+  // Refresh map colors (both desktop and mobile)
+  refreshAllMapFills();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE TAB NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+let activeTab = 'clasificacion';
+const isMobile = () => window.innerWidth <= 768;
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.m-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const panelMap = {clasificacion:'m-standings', mapa:'m-map', equipo:'m-panel'};
+  const navMap   = {clasificacion:'nav-clasificacion', mapa:'nav-mapa', equipo:'nav-equipo'};
+  document.getElementById(panelMap[tab])?.classList.add('active');
+  document.getElementById(navMap[tab])?.classList.add('active');
+  // Resize map SVG when switching to map tab
+  if (tab === 'mapa') setTimeout(() => resizeMobileMap(), 50);
+}
+
+function resizeMobileMap() {
+  const wrap = document.getElementById('map-wrap-m');
+  if (!wrap) return;
+  const svg = document.getElementById('map-svg-m');
+  if (svg) { svg.setAttribute('width', wrap.clientWidth); svg.setAttribute('height', wrap.clientHeight); }
+}
+
+// Mirror buildStandings output to mobile scroll container
+const _origBuildStandings = null;
+function buildStandingsMobile(conf) {
+  const mScroll = document.getElementById('standings-scroll-m');
+  const dScroll = document.getElementById('standings-scroll');
+  if (mScroll && dScroll) mScroll.innerHTML = dScroll.innerHTML;
+}
+
+// Update mobile panel when state is selected
+function buildPanelMobile(stateName) {
+  const abbrs = STATE_TEAMS[stateName];
+  const emptyM  = document.getElementById('panel-empty-m');
+  const headerM = document.getElementById('panel-header-m');
+  const scrollM = document.getElementById('panel-scroll-m');
+  if (!emptyM) return;
+
+  emptyM.style.display  = 'none';
+  headerM.style.display = 'block';
+  scrollM.style.display = 'block';
+
+  document.getElementById('panel-state-m').textContent = stateName;
+  const unique = abbrs ? [...new Set(abbrs)] : [];
+  document.getElementById('panel-count-m').textContent =
+    unique.length ? unique.length + ' equipo' + (unique.length!==1?'s':'') + ' NBA' : 'Sin equipo NBA';
+
+  // Reuse desktop panel HTML
+  const desktop = document.getElementById('panel-scroll');
+  if (desktop) scrollM.innerHTML = desktop.innerHTML;
+
+  // Show badge and switch to equipo tab
+  document.getElementById('equipo-badge')?.classList.add('visible');
+  if (isMobile()) switchTab('equipo');
+}
+
+// Clear mobile panel
+function clearPanelMobile() {
+  const emptyM  = document.getElementById('panel-empty-m');
+  const headerM = document.getElementById('panel-header-m');
+  const scrollM = document.getElementById('panel-scroll-m');
+  if (emptyM)  { emptyM.style.display  = 'flex'; }
+  if (headerM) { headerM.style.display = 'none'; }
+  if (scrollM) { scrollM.style.display = 'none'; }
+  document.getElementById('equipo-badge')?.classList.remove('visible');
+}
+
+// Update mobile map hint
+function setMobileHint(text) {
+  const h = document.getElementById('map-hint-m');
+  if (h) h.textContent = text;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -518,12 +800,20 @@ function buildStandings(conf) {
   }
 
   scroll.innerHTML = html;
+  // Mirror to mobile
+  const mScroll = document.getElementById('standings-scroll-m');
+  if (mScroll) mScroll.innerHTML = html;
 }
 
 function showConf(conf) {
   currentConf = conf;
   document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + conf).classList.add('active');
+  // Desktop tabs
+  const dt = document.getElementById('tab-' + conf);
+  if (dt) dt.classList.add('active');
+  // Mobile tabs
+  const mt = document.getElementById('tab-' + conf + '-m');
+  if (mt) mt.classList.add('active');
   buildStandings(conf);
 }
 
@@ -534,6 +824,148 @@ function handleStandingClick(abbr) {
       selectState(state, abbr);
       return;
     }
+  }
+  // Team not in the US (e.g. Toronto Raptors) → show info panel directly
+  showForeignTeamPanel(abbr);
+}
+
+function showForeignTeamPanel(abbr) {
+  const t = TEAMS[abbr];
+  if (!t) return;
+
+  // Clear any previous map selection
+  if (selectedState) {
+    const prev = selectedState;
+    selectedState = null;
+    d3.selectAll('.state').each(function(dd) {
+      const n = NAMES[dd.id.toString().padStart(2,'0')];
+      if (n === prev) d3.select(this).attr('fill', getStateFill(n, false));
+    });
+  }
+  highlightedAbbr = abbr;
+
+  // Update header
+  document.getElementById('panel-empty').style.display = 'none';
+  document.getElementById('panel-header').style.display = 'block';
+  document.getElementById('panel-scroll').style.display = 'block';
+  document.getElementById('panel-state').textContent = t.city;
+  document.getElementById('panel-count').textContent = '🌍 Equipo fuera de EEUU';
+  document.getElementById('clear-btn').style.display = 'inline-block';
+  document.getElementById('map-hint').textContent = `${t.name} · juega en Canadá`;
+
+  // Build panel content for just this team
+  const games = getGames(abbr);
+  const wins = games.filter(g => (g.home===abbr?g.hs:g.as) > (g.home===abbr?g.as:g.hs)).length;
+  const bgGrad = `linear-gradient(135deg,${t.color}25 0%,transparent 100%)`;
+
+  let playersHTML = '';
+  for (const p of t.players) {
+    playersHTML += `
+      <div class="p-card">
+        <img class="p-img" src="https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png" alt="${p.n}"
+          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
+        <div class="p-name">${p.n.split(' ').pop()}</div>
+        <div class="p-pos">${p.p}</div>
+      </div>`;
+  }
+
+  let gamesHTML = '';
+  for (const g of games) {
+    const isHome = g.home === abbr;
+    const my = isHome ? g.hs : g.as;
+    const opp = isHome ? g.as : g.hs;
+    const oppAbbr = isHome ? g.away : g.home;
+    const oppT = TEAMS[oppAbbr];
+    const won = my > opp;
+    gamesHTML += `
+      <div class="game-row">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="g-dot" style="background:${won?'#22c55e':'rgba(150,150,150,.4)'}"></div>
+          <span style="color:var(--text-3);font-size:9px;width:14px">${isHome?'vs':'@'}</span>
+          <div class="g-opp-badge" style="background:${oppT?oppT.color:'#bbb'}">
+            <img src="${oppT?logoUrl(oppT.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+              onerror="this.style.display='none';this.parentNode.textContent='${oppAbbr}'">
+          </div>
+          <span style="color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px">${oppT?oppT.name:oppAbbr}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+          <span class="g-score" style="color:${won?'var(--won-score)':'var(--lost-score)'}">${my}</span>
+          <span style="color:var(--text-3);font-size:10px">-</span>
+          <span class="g-score" style="color:${won?'var(--lost-score)':'var(--won-score)'}">${opp}</span>
+          <span class="g-date">${g.date}</span>
+        </div>
+      </div>`;
+  }
+
+  const ng = NEXT_GAMES[abbr];
+  let nextHTML = '';
+  if (ng) {
+    const oppT2 = TEAMS[ng.opp];
+    nextHTML = `
+      <div style="border-top:1px solid var(--border-sub);padding:10px 14px 12px">
+        <div class="sec-label" style="padding:0 0 8px 0">Próximo Partido</div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--accent-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+            <div class="team-logo-box" style="background:${t.color};width:36px;height:36px;border-radius:8px;padding:3px">
+              <img src="${logoUrl(t.nbaId)}" style="width:100%;height:100%;object-fit:contain">
+            </div>
+            <div style="font-size:10px;font-weight:600;color:var(--text)">${abbr}</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div style="font-size:9px;color:var(--text-3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${ng.isHome?'vs':'@'}</div>
+            <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:'Bebas Neue',sans-serif;letter-spacing:1px">VS</div>
+            <div style="font-size:9px;color:var(--text-3);margin-top:2px">${ng.date} · ${ng.time}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+            <div class="team-logo-box" style="background:${oppT2?oppT2.color:'#888'};width:36px;height:36px;border-radius:8px;padding:3px">
+              <img src="${oppT2?logoUrl(oppT2.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+                onerror="this.style.display='none';this.parentNode.textContent='${ng.opp}'">
+            </div>
+            <div style="font-size:10px;font-weight:600;color:var(--text)">${ng.opp}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const recordColor = wins >= Math.ceil(games.length/2) ? '#22c55e' : '#f59e0b';
+  document.getElementById('panel-scroll').innerHTML = `
+    <div style="background:var(--accent-bg);border:1px dashed var(--border);border-radius:8px;padding:6px 10px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3)">
+      🍁 Este equipo juega en <strong style="color:var(--text)">Toronto, Canadá</strong> — fuera del mapa de EEUU
+    </div>
+    <div class="team-card">
+      <div class="team-top" style="background:${bgGrad}">
+        <div style="position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;opacity:.07;pointer-events:none;overflow:hidden">
+          <img src="${logoUrl(t.nbaId)}" style="height:80px;width:auto">
+        </div>
+        <div class="team-logo-box" style="background:${t.color}">
+          <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="team-name">${t.name}</div>
+          <div class="team-city">${t.city}</div>
+          <div class="team-pills">
+            <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}">${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</span>
+            <span class="pill pill-d">${t.div}</span>
+          </div>
+        </div>
+        ${games.length>0?`<div class="record-box"><div class="record-num" style="color:${recordColor}">${wins}-${games.length-wins}</div><div style="font-size:9px;color:var(--text-3)">últimos</div></div>`:''}
+      </div>
+      <div class="sec-label">Jugadores Destacados</div>
+      <div class="players-row">${playersHTML}</div>
+      ${gamesHTML?`<div style="border-top:1px solid var(--border-sub)"><div class="sec-label">Últimos Partidos</div>${gamesHTML}</div>`:''}
+      ${nextHTML}
+    </div>`;
+
+  buildStandings(currentConf);
+  if (isMobile()) {
+    const scrollM = document.getElementById('panel-scroll-m');
+    const headerM = document.getElementById('panel-header-m');
+    const emptyM  = document.getElementById('panel-empty-m');
+    if (scrollM) { scrollM.innerHTML = document.getElementById('panel-scroll').innerHTML; scrollM.style.display='block'; }
+    if (headerM) { document.getElementById('panel-state-m').textContent = t.city; document.getElementById('panel-count-m').textContent = '🍁 Equipo fuera de EEUU'; headerM.style.display='block'; }
+    if (emptyM)  emptyM.style.display = 'none';
+    document.getElementById('equipo-badge')?.classList.add('visible');
+    switchTab('equipo');
   }
 }
 
@@ -615,6 +1047,38 @@ function buildPanel(stateName) {
     }
 
     const recordColor = wins >= Math.ceil(games.length/2) ? '#22c55e' : '#f59e0b';
+
+    // Próximo partido
+    const ng = NEXT_GAMES[abbr];
+    let nextHTML = '';
+    if (ng) {
+      const oppT2 = TEAMS[ng.opp];
+      nextHTML = `
+        <div style="border-top:1px solid var(--border-sub);padding:10px 14px 12px">
+          <div class="sec-label" style="padding:0 0 8px 0">Próximo Partido</div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--accent-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+              <div class="team-logo-box" style="background:${t.color};width:36px;height:36px;border-radius:8px;padding:3px">
+                <img src="${logoUrl(t.nbaId)}" style="width:100%;height:100%;object-fit:contain">
+              </div>
+              <div style="font-size:10px;font-weight:600;color:var(--text)">${abbr}</div>
+            </div>
+            <div style="flex:1;text-align:center">
+              <div style="font-size:9px;color:var(--text-3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${ng.isHome?'vs':'@'}</div>
+              <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:'Bebas Neue',sans-serif;letter-spacing:1px">VS</div>
+              <div style="font-size:9px;color:var(--text-3);margin-top:2px">${ng.date} · ${ng.time}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+              <div class="team-logo-box" style="background:${oppT2?oppT2.color:'#888'};width:36px;height:36px;border-radius:8px;padding:3px">
+                <img src="${oppT2?logoUrl(oppT2.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+                  onerror="this.style.display='none';this.parentNode.style.display='flex';this.parentNode.style.color='#fff';this.parentNode.textContent='${ng.opp}'">
+              </div>
+              <div style="font-size:10px;font-weight:600;color:var(--text)">${ng.opp}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
     html += `
       <div class="team-card">
         <div class="team-top" style="background:${bgGrad}">
@@ -638,9 +1102,11 @@ function buildPanel(stateName) {
         <div class="sec-label">Jugadores Destacados</div>
         <div class="players-row">${playersHTML}</div>
         ${gamesHTML?`<div style="border-top:1px solid var(--border-sub)"><div class="sec-label">Últimos Partidos</div>${gamesHTML}</div>`:''}
+        ${nextHTML}
       </div>`;
   }
   document.getElementById('panel-scroll').innerHTML = html;
+  if (isMobile()) buildPanelMobile(stateName);
 }
 
 function clearPanel() {
@@ -651,35 +1117,32 @@ function clearPanel() {
   document.getElementById('panel-scroll').style.display = 'none';
   document.getElementById('clear-btn').style.display = 'none';
   document.getElementById('map-hint').textContent = 'Haz click en un estado para ver sus equipos NBA';
+  setMobileHint('Toca un estado para ver sus equipos');
+  clearPanelMobile();
   buildStandings(currentConf);
 }
 
 function clearSelection() {
   clearPanel();
-  d3.selectAll('.state').attr('fill', d => {
-    const name = NAMES[d.id.toString().padStart(2,'0')];
-    return getStateFill(name, false);
-  });
+  refreshAllMapFills();
 }
 
 function selectState(stateName, focusAbbr) {
-  // Reset previous selection color on map
-  if (selectedState) {
-    d3.selectAll('.state').each(function(dd) {
-      const n = NAMES[dd.id.toString().padStart(2,'0')];
-      if (n === selectedState) d3.select(this).attr('fill', getStateFill(n, false));
-    });
-  }
+  const prev = selectedState;
 
-  if (stateName === selectedState && !focusAbbr) {
-    clearPanel();
-    return;
-  }
-
+  // Update selectedState FIRST so getStateFill returns correct colors
   selectedState = stateName;
   highlightedAbbr = focusAbbr || null;
 
-  // Highlight on map
+  // Deselect previous state (now selectedState !== prev, so getStateFill gives right color)
+  if (prev && prev !== stateName) {
+    d3.selectAll('.state').each(function(dd) {
+      const n = NAMES[dd.id.toString().padStart(2,'0')];
+      if (n === prev) d3.select(this).attr('fill', getStateFill(n, false));
+    });
+  }
+
+  // Highlight new state in orange
   d3.selectAll('.state').each(function(dd) {
     const n = NAMES[dd.id.toString().padStart(2,'0')];
     if (n === stateName) d3.select(this).attr('fill', '#ff8c00');
@@ -689,62 +1152,201 @@ function selectState(stateName, focusAbbr) {
     ? `${stateName} · ${[...new Set(STATE_TEAMS[stateName])].length} equipo(s) NBA`
     : `${stateName} · Sin equipo NBA`;
   document.getElementById('map-hint').textContent = hint;
+  setMobileHint(hint);
+  document.getElementById('clear-btn').style.display = 'inline-block';
 
   buildPanel(stateName);
-  buildStandings(currentConf); // re-render to show highlight
+  buildStandings(currentConf);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MAP
+// MAP  (desktop + mobile)
 // ═══════════════════════════════════════════════════════════════
+function buildMap(svgId, usData) {
+  const W = 960, H = 600;
+  const svg = d3.select('#' + svgId).attr('viewBox', `0 0 ${W} ${H}`);
+  const proj = d3.geoAlbersUsa().scale(1300).translate([W/2, H/2]);
+  const path = d3.geoPath().projection(proj);
+  const states = topojson.feature(usData, usData.objects.states);
+
+  svg.append('g').selectAll('path')
+    .data(states.features)
+    .join('path')
+    .attr('class', 'state')
+    .attr('d', path)
+    .attr('stroke', 'var(--map-border)')
+    .attr('stroke-width', 0.7)
+    .attr('fill', d => {
+      const name = NAMES[d.id.toString().padStart(2,'0')];
+      return getStateFill(name, false);
+    })
+    .on('mouseover', function(event, d) {
+      const name = NAMES[d.id.toString().padStart(2,'0')];
+      if (name === selectedState) return;
+      d3.select(this).attr('fill', getStateFill(name, true));
+    })
+    .on('mouseout', function(event, d) {
+      const name = NAMES[d.id.toString().padStart(2,'0')];
+      if (name === selectedState) return;
+      d3.select(this).attr('fill', getStateFill(name, false));
+    })
+    .on('click', function(event, d) {
+      const name = NAMES[d.id.toString().padStart(2,'0')];
+      if (!name) return;
+      selectState(name);
+    });
+
+  svg.append('path')
+    .datum(topojson.mesh(usData, usData.objects.states, (a,b) => a !== b))
+    .attr('fill','none').attr('stroke','var(--map-border)').attr('stroke-width', 0.8)
+    .attr('d', path);
+}
+
+// Refresh all map fills (called on theme toggle + selection changes)
+function refreshAllMapFills() {
+  d3.selectAll('.state').attr('fill', function(d) {
+    const name = NAMES[d.id.toString().padStart(2,'0')];
+    return getStateFill(name, false);
+  });
+}
+
 fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
   .then(r => r.json())
   .then(us => {
-    const W = 960, H = 600;
-    const svg = d3.select('#map-svg').attr('viewBox', `0 0 ${W} ${H}`);
-    const proj = d3.geoAlbersUsa().scale(1300).translate([W/2, H/2]);
-    const path = d3.geoPath().projection(proj);
-    const states = topojson.feature(us, us.objects.states);
-
-    svg.append('g').selectAll('path')
-      .data(states.features)
-      .join('path')
-      .attr('class', 'state')
-      .attr('d', path)
-      .attr('stroke', '#c5c8d8')
-      .attr('stroke-width', 0.7)
-      .attr('fill', d => {
-        const name = NAMES[d.id.toString().padStart(2,'0')];
-        return getStateFill(name, false);
-      })
-      .on('mouseover', function(event, d) {
-        const name = NAMES[d.id.toString().padStart(2,'0')];
-        if (name === selectedState) return;
-        d3.select(this).attr('fill', getStateFill(name, true));
-      })
-      .on('mouseout', function(event, d) {
-        const name = NAMES[d.id.toString().padStart(2,'0')];
-        if (name === selectedState) return;
-        d3.select(this).attr('fill', getStateFill(name, false));
-      })
-      .on('click', function(event, d) {
-        const name = NAMES[d.id.toString().padStart(2,'0')];
-        if (!name) return;
-        if (name === selectedState) { clearSelection(); return; }
-        // Reset old
-        d3.selectAll('.state').each(function(dd) {
-          const n = NAMES[dd.id.toString().padStart(2,'0')];
-          if (n === selectedState) d3.select(this).attr('fill', getStateFill(n, false));
-        });
-        d3.select(this).attr('fill', '#ff8c00');
-        selectState(name);
-      });
-
-    svg.append('path')
-      .datum(topojson.mesh(us, us.objects.states, (a,b) => a !== b))
-      .attr('fill','none').attr('stroke','#c5c8d8').attr('stroke-width', 0.8)
-      .attr('d', path);
+    buildMap('map-svg', us);    // desktop
+    buildMap('map-svg-m', us);  // mobile
   });
+
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE DATA REFRESH (ESPN public API)
+// ═══════════════════════════════════════════════════════════════
+
+// ESPN abbr → our abbr mapping (differences only)
+const ESPN_ABBR = {
+  'GS':'GSW','SA':'SAS','NO':'NOP','NY':'NYK','PHO':'PHX',
+  'UTAH':'UTA','MEM':'MEM','LAC':'LAC','LAL':'LAL',
+};
+function fixAbbr(a) { return ESPN_ABBR[a] || a; }
+
+// ESPN division name → our div name
+const ESPN_DIV = {
+  'Atlantic':'Atlantic','Central':'Central','Southeast':'Southeast',
+  'Northwest':'Northwest','Pacific':'Pacific','Southwest':'Southwest',
+};
+
+async function refreshData() {
+  const btn = document.getElementById('refresh-btn');
+  const status = document.getElementById('refresh-status');
+  btn.disabled = true;
+  btn.classList.add('spinning');
+  status.textContent = 'Conectando…';
+
+  try {
+    // ── 1. Fetch standings ──────────────────────────────────────
+    const sRes = await fetch(
+      'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?season=2026',
+      { cache: 'no-store' }
+    );
+    if (!sRes.ok) throw new Error('standings ' + sRes.status);
+    const sData = await sRes.json();
+
+    // Parse ESPN standings into our format
+    const newStandings = [];
+    for (const conf of sData.children || []) {
+      const confName = conf.name.includes('East') ? 'East' : 'West';
+      for (const div of conf.children || []) {
+        const divName = ESPN_DIV[div.name] || div.name;
+        for (const entry of div.standings?.entries || []) {
+          const abbr = fixAbbr(entry.team.abbreviation);
+          const name = entry.team.displayName;
+          const stats = {};
+          for (const s of entry.stats || []) stats[s.name] = s.value;
+          const w   = stats.wins   || 0;
+          const l   = stats.losses || 0;
+          const pf  = +(stats.avgPointsFor    || stats.pointsFor    / (w+l||1)).toFixed(1);
+          const pa  = +(stats.avgPointsAgainst || stats.pointsAgainst / (w+l||1)).toFixed(1);
+          newStandings.push({ abbr, name, conf:confName, div:divName, w, l, pf, pa });
+        }
+      }
+    }
+
+    if (newStandings.length >= 20) {
+      // Replace live data into STANDINGS_RAW
+      STANDINGS_RAW.length = 0;
+      newStandings.forEach(t => {
+        t.gp   = t.w + t.l;
+        t.pct  = t.gp > 0 ? t.w / t.gp : 0;
+        t.diff = +(t.pf - t.pa).toFixed(1);
+        STANDINGS_RAW.push(t);
+      });
+      buildStandings(currentConf);
+    }
+
+    // ── 2. Fetch today's scoreboard ─────────────────────────────
+    const gRes = await fetch(
+      'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+      { cache: 'no-store' }
+    );
+    if (gRes.ok) {
+      const gData = await gRes.json();
+      const today = gData.events || [];
+      if (today.length > 0) {
+        const newGames = [];
+        const newNext = {};
+        for (const ev of today) {
+          const comp = ev.competitions?.[0];
+          if (!comp) continue;
+          const teams = comp.competitors || [];
+          const home = teams.find(t => t.homeAway === 'home');
+          const away = teams.find(t => t.homeAway === 'away');
+          if (!home || !away) continue;
+          const hAbbr = fixAbbr(home.team.abbreviation);
+          const aAbbr = fixAbbr(away.team.abbreviation);
+          const hs = parseInt(home.score) || 0;
+          const as_ = parseInt(away.score) || 0;
+          const evDate = new Date(ev.date);
+          const dateStr = evDate.toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace('.','');
+          const timeStr = evDate.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+          const status = comp.status?.type?.state;
+          if (status === 'in' || status === 'post') {
+            // Finished or live → recent results
+            newGames.push({ home:hAbbr, away:aAbbr, hs, as:as_, date:dateStr });
+          } else if (status === 'pre') {
+            // Upcoming → próximo partido
+            newNext[hAbbr] = {opp:aAbbr, isHome:true,  date:dateStr, time:timeStr};
+            newNext[aAbbr] = {opp:hAbbr, isHome:false, date:dateStr, time:timeStr};
+          }
+        }
+        if (newGames.length > 0) {
+          GAMES.length = 0;
+          newGames.forEach(g => GAMES.push(g));
+        }
+        if (Object.keys(newNext).length > 0) {
+          Object.assign(NEXT_GAMES, newNext);
+        }
+        // Refresh right panel if open
+        if (selectedState) buildPanel(selectedState);
+      }
+    }
+
+    // ── Done ────────────────────────────────────────────────────
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    status.textContent = 'Actualizado ' + timeStr;
+    const mStatus = document.getElementById('refresh-status-m');
+    if (mStatus) mStatus.textContent = 'Actualizado ' + timeStr;
+
+  } catch(err) {
+    console.error('Refresh error:', err);
+    status.textContent = '⚠ Sin conexión';
+    const mStatus2 = document.getElementById('refresh-status-m');
+    if (mStatus2) mStatus2.textContent = '⚠ Sin conexión';
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('spinning');
+  }
+}
 
 // Init standings
 buildStandings('east');
