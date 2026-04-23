@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>NBA USA Map</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+
+    /* ── LIGHT THEME (default) ── */
+    :root {
+      --bg:          #f0f2f7;
+      --bg-header:   #ffffff;
+      --bg-left:     #e8ebf4;
+      --bg-left-tab: #e0e4f0;
+      --bg-left-div: #d8dcec;
+      --bg-left-head:#d0d5e8;
+      --bg-left-row: #ffffff;
+      --bg-left-conf:#e8ebf4;
+      --bg-center:   #f4f6fc;
+      --bg-right:    #edf0f8;
+      --bg-card:     #ffffff;
+      --bg-card-box: #d0d4e8;
+      --border:      rgba(30,35,80,.12);
+      --border-sub:  rgba(30,35,80,.08);
+      --text:        #1a1d2e;
+      --text-2:      rgba(30,35,80,.55);
+      --text-3:      rgba(30,35,80,.38);
+      --text-4:      rgba(30,35,80,.28);
+      --accent:      #d4700a;
+      --accent-bg:   rgba(255,140,0,.12);
+      --map-state:   #c8e6c9;
+      --map-hover:   #a5d6a7;
+      --map-empty:   #dde0ea;
+      --map-empty-h: #d0d3e0;
+      --map-border:  #c5c8d8;
+      --shadow:      0 1px 6px rgba(30,35,80,.08);
+      --pill-e-bg:   rgba(59,130,246,.12);
+      --pill-e-c:    #2563eb;
+      --pill-e-b:    rgba(59,130,246,.4);
+      --pill-w-bg:   rgba(239,68,68,.12);
+      --pill-w-c:    #dc2626;
+      --pill-w-b:    rgba(239,68,68,.35);
+      --scrollbar:   rgba(180,90,0,.3);
+      --row-hover:   rgba(30,35,80,.05);
+      --s-rank-c:    rgba(30,35,80,.4);
+      --s-cell-c:    rgba(30,35,80,.65);
+      --s-pct-c:     #c47a0a;
+      --conf-e-c:    #2563eb;
+      --conf-w-c:    #dc2626;
+      --won-score:   #1a1d2e;
+      --lost-score:  rgba(30,35,80,.35);
+    }
+
+    /* ── DARK THEME ── */
+    body.dark {
+      --bg:          #08080f;
+      --bg-header:   #09090f;
+      --bg-left:     #0a0a16;
+      --bg-left-tab: #0d0d1e;
+      --bg-left-div: #0c0c1e;
+      --bg-left-head:#0c0c1e;
+      --bg-left-row: #0f0f1c;
+      --bg-left-conf:#0a0a16;
+      --bg-center:   #08080f;
+      --bg-right:    #0c0c18;
+      --bg-card:     rgba(255,255,255,.03);
+      --bg-card-box: #1a1a2e;
+      --border:      rgba(255,255,255,.07);
+      --border-sub:  rgba(255,255,255,.05);
+      --text:        #f0f0ff;
+      --text-2:      rgba(255,255,255,.5);
+      --text-3:      rgba(255,255,255,.3);
+      --text-4:      rgba(255,255,255,.2);
+      --accent:      #ff8c00;
+      --accent-bg:   rgba(255,140,0,.1);
+      --map-state:   #183020;
+      --map-hover:   #2a4a38;
+      --map-empty:   #111118;
+      --map-empty-h: #1a1a28;
+      --map-border:  #1c1c2e;
+      --shadow:      none;
+      --pill-e-bg:   rgba(59,130,246,.18);
+      --pill-e-c:    #93c5fd;
+      --pill-e-b:    rgba(59,130,246,.3);
+      --pill-w-bg:   rgba(239,68,68,.18);
+      --pill-w-c:    #fca5a5;
+      --pill-w-b:    rgba(239,68,68,.28);
+      --scrollbar:   rgba(255,140,0,.3);
+      --row-hover:   rgba(255,255,255,.04);
+      --s-rank-c:    rgba(255,255,255,.3);
+      --s-cell-c:    rgba(255,255,255,.6);
+      --s-pct-c:     rgba(255,140,0,.9);
+      --conf-e-c:    #93c5fd;
+      --conf-w-c:    #fca5a5;
+      --won-score:   #ffffff;
+      --lost-score:  rgba(255,255,255,.32);
+    }
+
+    body{background:var(--bg);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;color:var(--text);transition:background .3s,color .3s}
+    .bebas{font-family:'Bebas Neue',sans-serif}
+
+    /* ── Header ── */
+    #header{border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg-header);transition:background .3s}
+
+    /* Theme toggle */
+    #theme-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s;user-select:none}
+    #theme-toggle:hover{background:var(--accent-bg);border-color:var(--accent)}
+    .toggle-track{width:32px;height:18px;border-radius:9px;background:var(--border);position:relative;transition:background .25s;flex-shrink:0}
+    body.dark .toggle-track{background:var(--accent)}
+    .toggle-thumb{width:13px;height:13px;border-radius:50%;background:#fff;position:absolute;top:2.5px;left:2.5px;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+    body.dark .toggle-thumb{transform:translateX(14px)}
+    .ldot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
+
+    /* ── Body ── */
+    #body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+    /* ── Standings (LEFT) ── */
+    #standings{width:310px;flex-shrink:0;border-right:1px solid var(--border);background:var(--bg-left);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
+    #standings-tabs{display:flex;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg-left-tab)}
+    .s-tab{flex:1;padding:9px 0;text-align:center;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-3);letter-spacing:.04em;transition:all .15s;border-bottom:2px solid transparent}
+    .s-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    #standings-scroll{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg-left)}
+    #standings-scroll::-webkit-scrollbar{width:3px}
+    #standings-scroll::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+    .conf-label{padding:8px 10px 4px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);background:var(--bg-left-conf);position:sticky;top:0;z-index:2}
+    .div-label{padding:5px 10px 3px;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:var(--bg-left-div);border-top:1px solid var(--border-sub);color:var(--text-3)}
+    .tbl-head{display:grid;grid-template-columns:18px 22px 1fr 28px 28px 28px 28px 34px;gap:0;padding:3px 6px 3px 8px;background:var(--bg-left-head);border-bottom:1px solid var(--border-sub)}
+    .tbl-head span{font-size:9px;color:var(--text-3);font-weight:600;text-align:center;letter-spacing:.06em;text-transform:uppercase}
+    .tbl-head span:nth-child(3){text-align:left}
+    .s-row{display:grid;grid-template-columns:18px 22px 1fr 28px 28px 28px 28px 34px;gap:0;padding:4px 6px 4px 8px;border-bottom:1px solid var(--border-sub);cursor:pointer;transition:background .12s;align-items:center;background:var(--bg-left-row)}
+    .s-row:hover{background:var(--row-hover)}
+    .s-row.highlighted{background:var(--accent-bg);border-left:2px solid var(--accent)}
+    .s-row.playoff-line{border-bottom:2px solid rgba(212,112,10,.35)}
+    .s-row.playin-line{border-bottom:2px dashed rgba(212,112,10,.25)}
+    .s-rank{font-size:10px;color:var(--s-rank-c);text-align:center;font-weight:600}
+    .s-logo{width:20px;height:20px;object-fit:contain}
+    .s-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:4px;color:var(--text)}
+    .s-cell{font-size:11px;text-align:center;color:var(--s-cell-c)}
+    .s-cell.bold{font-weight:700;color:var(--text)}
+    .s-pct{font-size:11px;text-align:center;color:var(--s-pct-c);font-weight:600}
+
+    /* ── Map (CENTER) ── */
+    #map-area{flex:1;display:flex;flex-direction:column;padding:10px 14px 8px;overflow:hidden;min-width:0;background:var(--bg-center);transition:background .3s}
+    #map-wrap{flex:1;min-height:0;display:flex;align-items:center;background:var(--bg-center);border-radius:12px}
+    #map-wrap svg{width:100%;height:100%}
+    #map-hint{text-align:center;font-size:12px;color:var(--text-3);padding:4px 0;min-height:20px}
+    .state{transition:fill .15s;cursor:pointer}
+
+    /* ── Team panel (RIGHT) ── */
+    #panel{width:340px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg-right);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
+    #panel-header{padding:12px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+    #panel-scroll{flex:1;overflow-y:auto;padding:12px}
+    #panel-scroll::-webkit-scrollbar{width:3px}
+    #panel-scroll::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+    #panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px}
+
+    /* Team card */
+    .team-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--bg-card);box-shadow:var(--shadow)}
+    .team-top{padding:12px 14px 10px;display:flex;gap:10px;align-items:center;position:relative;overflow:hidden}
+    .team-logo-box{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px;overflow:hidden}
+    .team-name{font-size:14px;font-weight:600;line-height:1.25;color:var(--text)}
+    .team-city{font-size:11px;color:var(--text-2);margin-top:2px}
+    .team-pills{display:flex;gap:5px;margin-top:6px;align-items:center;flex-wrap:wrap}
+    .pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600}
+    .pill-e{background:var(--pill-e-bg);color:var(--pill-e-c);border:1px solid var(--pill-e-b)}
+    .pill-w{background:var(--pill-w-bg);color:var(--pill-w-c);border:1px solid var(--pill-w-b)}
+    .pill-d{background:var(--border-sub);color:var(--text-2);border:1px solid var(--border);font-size:9px}
+    .record-box{text-align:center;flex-shrink:0}
+    .record-num{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;color:var(--text)}
+    .sec-label{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;font-weight:600;padding:7px 14px 4px}
+    .players-row{display:flex;gap:8px;padding:4px 12px 10px;overflow-x:auto;scrollbar-width:none}
+    .players-row::-webkit-scrollbar{display:none}
+    .p-card{flex-shrink:0;width:70px;text-align:center}
+    .p-img{width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:top;background:var(--bg-card-box);border:2px solid var(--border);display:block;margin:0 auto 4px}
+    .p-name{font-size:11px;color:var(--text-2);line-height:1.2;font-weight:500}
+    .p-pos{font-size:9px;color:var(--text-3);margin-top:1px}
+    .game-row{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;border-top:1px solid var(--border-sub)}
+    .g-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .g-opp-badge{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;flex-shrink:0;overflow:hidden;padding:2px}
+    .g-score{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1}
+    .g-date{font-size:9px;color:var(--text-3);min-width:38px;text-align:right}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div style="display:flex;align-items:center;gap:11px">
+    <span style="font-size:24px">🏀</span>
+    <div>
+      <div class="bebas" style="font-size:22px;letter-spacing:2px;line-height:1;color:var(--accent)">NBA UNITED STATES MAP</div>
+      <div style="color:var(--text-2);font-size:11px;margin-top:1px">Clasificación · Equipos · Jugadores · Resultados</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <span style="font-size:11px;color:var(--text-3)"><span class="ldot" id="ldot-team" style="background:#81c784;border:1px solid #4caf50"></span>Con equipo</span>
+    <span style="font-size:11px;color:var(--text-3)"><span class="ldot" style="background:var(--accent)"></span>Seleccionado</span>
+    <button id="clear-btn" onclick="clearSelection()" style="display:none;padding:2px 9px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Limpiar</button>
+    <button id="theme-toggle" onclick="toggleTheme()">
+      <span id="theme-icon">🌙</span>
+      <span id="theme-label">Oscuro</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    </button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- LEFT: Standings -->
+  <div id="standings">
+    <div id="standings-tabs">
+      <div class="s-tab active" id="tab-east" onclick="showConf('east')">ESTE</div>
+      <div class="s-tab" id="tab-west" onclick="showConf('west')">OESTE</div>
+      <div class="s-tab" id="tab-all" onclick="showConf('all')">TODAS</div>
+    </div>
+    <div id="standings-scroll"></div>
+  </div>
+
+  <!-- CENTER: Map -->
+  <div id="map-area">
+    <div id="map-wrap"><svg id="map-svg"></svg></div>
+    <div id="map-hint">Haz click en un estado para ver sus equipos NBA</div>
+  </div>
+
+  <!-- RIGHT: Team detail -->
+  <div id="panel">
+    <div id="panel-empty">
+      <div style="font-size:46px;margin-bottom:12px">🏀</div>
+      <p style="color:var(--text-3);font-size:12px;line-height:1.8">Haz click en un estado<br>para ver sus equipos, jugadores<br>y resultados recientes</p>
+      <div style="display:flex;gap:16px;margin-top:20px">
+        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">30</div><div style="font-size:9px;color:var(--text-3)">Equipos</div></div>
+        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">20</div><div style="font-size:9px;color:var(--text-3)">Partidos</div></div>
+        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">2</div><div style="font-size:9px;color:var(--text-3)">Conferencias</div></div>
+      </div>
+    </div>
+    <div id="panel-header" style="display:none">
+      <div style="width:28px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:5px"></div>
+      <div id="panel-state" class="bebas" style="font-size:24px;letter-spacing:1px;line-height:1;color:var(--text)"></div>
+      <div id="panel-count" style="font-size:11px;color:var(--text-3);margin-top:2px"></div>
+    </div>
+    <div id="panel-scroll" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const GAMES = [
+  {home:"HOU",away:"MIN",hs:132,as:136,date:"11 Abr"},
+  {home:"UTA",away:"MEM",hs:147,as:101,date:"11 Abr"},
+  {home:"SAC",away:"GSW",hs:124,as:118,date:"11 Abr"},
+  {home:"POR",away:"LAC",hs:116,as:97, date:"11 Abr"},
+  {home:"LAL",away:"PHX",hs:101,as:73, date:"11 Abr"},
+  {home:"TOR",away:"BKN",hs:136,as:101,date:"13 Abr"},
+  {home:"NYK",away:"CHA",hs:96, as:110,date:"13 Abr"},
+  {home:"MIA",away:"ATL",hs:143,as:117,date:"13 Abr"},
+  {home:"CLE",away:"WAS",hs:130,as:117,date:"13 Abr"},
+  {home:"BOS",away:"ORL",hs:113,as:108,date:"13 Abr"},
+  {home:"PHI",away:"MIL",hs:126,as:106,date:"13 Abr"},
+  {home:"IND",away:"DET",hs:121,as:133,date:"13 Abr"},
+  {home:"LAC",away:"GSW",hs:115,as:110,date:"13 Abr"},
+  {home:"LAL",away:"UTA",hs:131,as:107,date:"13 Abr"},
+  {home:"DAL",away:"CHI",hs:149,as:128,date:"13 Abr"},
+  {home:"HOU",away:"MEM",hs:132,as:101,date:"13 Abr"},
+  {home:"MIN",away:"NOP",hs:132,as:126,date:"13 Abr"},
+  {home:"POR",away:"SAC",hs:122,as:110,date:"13 Abr"},
+  {home:"OKC",away:"PHX",hs:103,as:135,date:"13 Abr"},
+  {home:"SAS",away:"DEN",hs:118,as:128,date:"13 Abr"},
+];
+
+// Real standings from live API (Apr 2026)
+const STANDINGS_RAW = [
+  // EAST – Atlantic
+  {abbr:"BOS",name:"Boston Celtics",    conf:"East",div:"Atlantic",  w:56,l:26,pf:117.8,pa:111.2},
+  {abbr:"NYK",name:"New York Knicks",   conf:"East",div:"Atlantic",  w:53,l:29,pf:120.5,pa:114.1},
+  {abbr:"TOR",name:"Toronto Raptors",   conf:"East",div:"Atlantic",  w:46,l:36,pf:113.5,pa:113.0},
+  {abbr:"PHI",name:"Philadelphia 76ers",conf:"East",div:"Atlantic",  w:45,l:37,pf:114.6,pa:113.4},
+  {abbr:"BKN",name:"Brooklyn Nets",     conf:"East",div:"Atlantic",  w:20,l:62,pf:109.7,pa:121.4},
+  // EAST – Central
+  {abbr:"DET",name:"Detroit Pistons",   conf:"East",div:"Central",   w:60,l:22,pf:118.7,pa:110.9},
+  {abbr:"CLE",name:"Cleveland Cavaliers",conf:"East",div:"Central",  w:52,l:30,pf:118.6,pa:111.4},
+  {abbr:"MIL",name:"Milwaukee Bucks",   conf:"East",div:"Central",   w:32,l:50,pf:111.3,pa:114.8},
+  {abbr:"CHI",name:"Chicago Bulls",     conf:"East",div:"Central",   w:31,l:51,pf:114.9,pa:118.3},
+  {abbr:"IND",name:"Indiana Pacers",    conf:"East",div:"Central",   w:19,l:63,pf:115.4,pa:122.7},
+  // EAST – Southeast
+  {abbr:"ATL",name:"Atlanta Hawks",     conf:"East",div:"Southeast", w:46,l:36,pf:118.0,pa:117.5},
+  {abbr:"ORL",name:"Orlando Magic",     conf:"East",div:"Southeast", w:45,l:37,pf:113.8,pa:110.5},
+  {abbr:"CHA",name:"Charlotte Hornets", conf:"East",div:"Southeast", w:44,l:38,pf:112.9,pa:112.6},
+  {abbr:"MIA",name:"Miami Heat",        conf:"East",div:"Southeast", w:43,l:39,pf:121.7,pa:116.3},
+  {abbr:"WAS",name:"Washington Wizards",conf:"East",div:"Southeast", w:17,l:65,pf:108.6,pa:123.1},
+  // WEST – Northwest
+  {abbr:"OKC",name:"Oklahoma City Thunder",conf:"West",div:"Northwest",w:64,l:18,pf:123.0,pa:109.2},
+  {abbr:"DEN",name:"Denver Nuggets",    conf:"West",div:"Northwest", w:54,l:28,pf:124.4,pa:113.8},
+  {abbr:"MIN",name:"Minnesota Timberwolves",conf:"West",div:"Northwest",w:49,l:33,pf:119.6,pa:111.8},
+  {abbr:"POR",name:"Portland Trail Blazers",conf:"West",div:"Northwest",w:42,l:40,pf:113.1,pa:114.8},
+  {abbr:"UTA",name:"Utah Jazz",         conf:"West",div:"Northwest", w:22,l:60,pf:110.8,pa:120.5},
+  // WEST – Pacific
+  {abbr:"LAL",name:"Los Angeles Lakers",conf:"West",div:"Pacific",   w:53,l:29,pf:118.3,pa:113.6},
+  {abbr:"PHX",name:"Phoenix Suns",      conf:"West",div:"Pacific",   w:45,l:37,pf:117.4,pa:114.9},
+  {abbr:"LAC",name:"LA Clippers",       conf:"West",div:"Pacific",   w:42,l:40,pf:116.9,pa:115.1},
+  {abbr:"GSW",name:"Golden State Warriors",conf:"West",div:"Pacific",w:37,l:45,pf:112.4,pa:115.7},
+  {abbr:"SAC",name:"Sacramento Kings",  conf:"West",div:"Pacific",   w:22,l:60,pf:110.2,pa:118.9},
+  // WEST – Southwest
+  {abbr:"SAS",name:"San Antonio Spurs", conf:"West",div:"Southwest", w:62,l:20,pf:119.6,pa:111.5},
+  {abbr:"HOU",name:"Houston Rockets",   conf:"West",div:"Southwest", w:52,l:30,pf:120.9,pa:112.4},
+  {abbr:"NOP",name:"New Orleans Pelicans",conf:"West",div:"Southwest",w:26,l:56,pf:116.5,pa:121.3},
+  {abbr:"DAL",name:"Dallas Mavericks",  conf:"West",div:"Southwest", w:26,l:56,pf:115.8,pa:120.2},
+  {abbr:"MEM",name:"Memphis Grizzlies", conf:"West",div:"Southwest", w:25,l:57,pf:111.7,pa:119.4},
+];
+
+// Enrich with computed stats
+STANDINGS_RAW.forEach(t => {
+  t.gp = t.w + t.l;
+  t.pct = t.gp > 0 ? (t.w / t.gp) : 0;
+  t.diff = +(t.pf - t.pa).toFixed(1);
+  t.streak = t.w > t.l ? 'G' : 'P'; // simplified
+});
+
+// Conference-sorted rankings
+function confRanked(conf) {
+  return STANDINGS_RAW
+    .filter(t => t.conf === conf)
+    .sort((a, b) => b.w - a.w || a.l - b.l);
+}
+
+const TEAMS = {
+  LAL:{nbaId:1610612747,name:"Los Angeles Lakers",    city:"Los Angeles",   conf:"West",div:"Pacific",   color:"#552583",alt:"#FDB927",
+    players:[{n:"LeBron James",p:"SF",id:2544},{n:"Anthony Davis",p:"C",id:203076},{n:"Austin Reaves",p:"SG",id:1630559},{n:"D'Angelo Russell",p:"PG",id:1626156}]},
+  LAC:{nbaId:1610612746,name:"LA Clippers",           city:"Los Angeles",   conf:"West",div:"Pacific",   color:"#C8102E",alt:"#1D428A",
+    players:[{n:"Kawhi Leonard",p:"SF",id:202695},{n:"James Harden",p:"PG",id:201935},{n:"Ivica Zubac",p:"C",id:1627826}]},
+  GSW:{nbaId:1610612744,name:"Golden State Warriors", city:"San Francisco", conf:"West",div:"Pacific",   color:"#1D428A",alt:"#FFC72C",
+    players:[{n:"Stephen Curry",p:"PG",id:201939},{n:"Klay Thompson",p:"SG",id:202691},{n:"Draymond Green",p:"PF",id:203110}]},
+  SAC:{nbaId:1610612758,name:"Sacramento Kings",      city:"Sacramento",    conf:"West",div:"Pacific",   color:"#5A2D81",alt:"#63727A",
+    players:[{n:"De'Aaron Fox",p:"PG",id:1628368},{n:"Domantas Sabonis",p:"C",id:1627734}]},
+  PHX:{nbaId:1610612756,name:"Phoenix Suns",          city:"Phoenix",       conf:"West",div:"Pacific",   color:"#1D1160",alt:"#E56020",
+    players:[{n:"Kevin Durant",p:"SF",id:201142},{n:"Devin Booker",p:"SG",id:1626164},{n:"Bradley Beal",p:"SG",id:203078}]},
+  DAL:{nbaId:1610612742,name:"Dallas Mavericks",      city:"Dallas",        conf:"West",div:"Southwest", color:"#00538C",alt:"#002B5E",
+    players:[{n:"Luka Dončić",p:"PG",id:1629029},{n:"Kyrie Irving",p:"PG",id:202681}]},
+  HOU:{nbaId:1610612745,name:"Houston Rockets",       city:"Houston",       conf:"West",div:"Southwest", color:"#CE1141",alt:"#000",
+    players:[{n:"Alperen Şengün",p:"C",id:1631167},{n:"Jalen Green",p:"SG",id:1630224},{n:"Dillon Brooks",p:"SF",id:1628415}]},
+  SAS:{nbaId:1610612759,name:"San Antonio Spurs",     city:"San Antonio",   conf:"West",div:"Southwest", color:"#C4CED4",alt:"#000",
+    players:[{n:"Victor Wembanyama",p:"C",id:1641705},{n:"Devin Vassell",p:"SG",id:1630170}]},
+  NOP:{nbaId:1610612740,name:"New Orleans Pelicans",  city:"New Orleans",   conf:"West",div:"Southwest", color:"#0C2340",alt:"#C8102E",
+    players:[{n:"Zion Williamson",p:"PF",id:1629627},{n:"Brandon Ingram",p:"SF",id:1627742},{n:"CJ McCollum",p:"SG",id:203468}]},
+  DEN:{nbaId:1610612743,name:"Denver Nuggets",        city:"Denver",        conf:"West",div:"Northwest", color:"#0E2240",alt:"#FEC524",
+    players:[{n:"Nikola Jokić",p:"C",id:203999},{n:"Jamal Murray",p:"PG",id:1627750},{n:"Michael Porter Jr.",p:"SF",id:1629008}]},
+  MIN:{nbaId:1610612750,name:"Minnesota Timberwolves",city:"Minneapolis",   conf:"West",div:"Northwest", color:"#0C2340",alt:"#236192",
+    players:[{n:"Anthony Edwards",p:"SG",id:1630162},{n:"Karl-Anthony Towns",p:"C",id:1626157},{n:"Rudy Gobert",p:"C",id:203497}]},
+  OKC:{nbaId:1610612760,name:"Oklahoma City Thunder", city:"Oklahoma City", conf:"West",div:"Northwest", color:"#007AC1",alt:"#EF3B24",
+    players:[{n:"Shai Gilgeous-Alexander",p:"PG",id:1628983},{n:"Chet Holmgren",p:"C",id:1641723}]},
+  POR:{nbaId:1610612757,name:"Portland Trail Blazers",city:"Portland",      conf:"West",div:"Northwest", color:"#E03A3E",alt:"#000",
+    players:[{n:"Scoot Henderson",p:"PG",id:1641720},{n:"Anfernee Simons",p:"SG",id:1629014}]},
+  UTA:{nbaId:1610612762,name:"Utah Jazz",             city:"Salt Lake City",conf:"West",div:"Northwest", color:"#002B5C",alt:"#00471B",
+    players:[{n:"Lauri Markkanen",p:"PF",id:1628374},{n:"Keyonte George",p:"PG",id:1641719}]},
+  BOS:{nbaId:1610612738,name:"Boston Celtics",        city:"Boston",        conf:"East",div:"Atlantic",  color:"#007A33",alt:"#BA9653",
+    players:[{n:"Jayson Tatum",p:"SF",id:1628369},{n:"Jaylen Brown",p:"SG",id:1627759},{n:"Jrue Holiday",p:"PG",id:201950},{n:"Al Horford",p:"C",id:201143}]},
+  NYK:{nbaId:1610612752,name:"New York Knicks",       city:"New York",      conf:"East",div:"Atlantic",  color:"#006BB6",alt:"#F58426",
+    players:[{n:"Jalen Brunson",p:"PG",id:1628973},{n:"Julius Randle",p:"PF",id:203944},{n:"OG Anunoby",p:"SF",id:1628384}]},
+  BKN:{nbaId:1610612751,name:"Brooklyn Nets",         city:"Brooklyn",      conf:"East",div:"Atlantic",  color:"#1a1a1a",alt:"#fff",
+    players:[{n:"Mikal Bridges",p:"SF",id:1628969},{n:"Cam Thomas",p:"SG",id:1630560},{n:"Ben Simmons",p:"PG",id:1627732}]},
+  PHI:{nbaId:1610612755,name:"Philadelphia 76ers",    city:"Philadelphia",  conf:"East",div:"Atlantic",  color:"#006BB6",alt:"#ED174C",
+    players:[{n:"Joel Embiid",p:"C",id:203954},{n:"Tyrese Maxey",p:"PG",id:1630178}]},
+  MIA:{nbaId:1610612748,name:"Miami Heat",            city:"Miami",         conf:"East",div:"Southeast", color:"#98002E",alt:"#F9A01B",
+    players:[{n:"Jimmy Butler",p:"SF",id:202710},{n:"Bam Adebayo",p:"C",id:1628389},{n:"Tyler Herro",p:"SG",id:1629628}]},
+  ORL:{nbaId:1610612753,name:"Orlando Magic",         city:"Orlando",       conf:"East",div:"Southeast", color:"#0077C0",alt:"#C4CED4",
+    players:[{n:"Paolo Banchero",p:"PF",id:1641706},{n:"Franz Wagner",p:"SF",id:1630532},{n:"Jalen Suggs",p:"PG",id:1630527}]},
+  ATL:{nbaId:1610612737,name:"Atlanta Hawks",         city:"Atlanta",       conf:"East",div:"Southeast", color:"#C1272D",alt:"#FDB927",
+    players:[{n:"Trae Young",p:"PG",id:1629027},{n:"Dejounte Murray",p:"PG",id:1627749}]},
+  WAS:{nbaId:1610612764,name:"Washington Wizards",    city:"Washington D.C.",conf:"East",div:"Southeast",color:"#002B5C",alt:"#E31837",
+    players:[{n:"Kyle Kuzma",p:"PF",id:1628398},{n:"Jordan Poole",p:"PG",id:1629673}]},
+  CLE:{nbaId:1610612739,name:"Cleveland Cavaliers",   city:"Cleveland",     conf:"East",div:"Central",   color:"#860038",alt:"#FDBB30",
+    players:[{n:"Donovan Mitchell",p:"SG",id:1628378},{n:"Evan Mobley",p:"C",id:1630596},{n:"Darius Garland",p:"PG",id:1629636}]},
+  CHI:{nbaId:1610612741,name:"Chicago Bulls",         city:"Chicago",       conf:"East",div:"Central",   color:"#CE1141",alt:"#000",
+    players:[{n:"DeMar DeRozan",p:"SF",id:201942},{n:"Zach LaVine",p:"SG",id:203897}]},
+  MIL:{nbaId:1610612749,name:"Milwaukee Bucks",       city:"Milwaukee",     conf:"East",div:"Central",   color:"#00471B",alt:"#EEE1C6",
+    players:[{n:"Giannis Antetokounmpo",p:"PF",id:203507},{n:"Damian Lillard",p:"PG",id:203081},{n:"Brook Lopez",p:"C",id:201572}]},
+  DET:{nbaId:1610612765,name:"Detroit Pistons",       city:"Detroit",       conf:"East",div:"Central",   color:"#C8102E",alt:"#006BB6",
+    players:[{n:"Cade Cunningham",p:"PG",id:1630595},{n:"Jalen Duren",p:"C",id:1631096}]},
+  IND:{nbaId:1610612754,name:"Indiana Pacers",        city:"Indianapolis",  conf:"East",div:"Central",   color:"#002D62",alt:"#FDBB30",
+    players:[{n:"Tyrese Haliburton",p:"PG",id:1630169},{n:"Myles Turner",p:"C",id:1626167},{n:"Bennedict Mathurin",p:"SG",id:1631095}]},
+  CHA:{nbaId:1610612766,name:"Charlotte Hornets",     city:"Charlotte",     conf:"East",div:"Southeast", color:"#1D1160",alt:"#00788C",
+    players:[{n:"LaMelo Ball",p:"PG",id:1630163},{n:"Miles Bridges",p:"PF",id:1628970}]},
+  MEM:{nbaId:1610612763,name:"Memphis Grizzlies",     city:"Memphis",       conf:"West",div:"Southwest", color:"#5D76A9",alt:"#12173F",
+    players:[{n:"Ja Morant",p:"PG",id:1629630},{n:"Jaren Jackson Jr.",p:"PF",id:1628991},{n:"Desmond Bane",p:"SG",id:1630217}]},
+};
+
+const STATE_TEAMS = {
+  "California":["LAL","LAC","GSW","SAC"],"Texas":["DAL","HOU","SAS"],"Florida":["MIA","ORL"],
+  "New York":["NYK","BKN"],"Illinois":["CHI"],"Pennsylvania":["PHI"],"Ohio":["CLE"],
+  "Massachusetts":["BOS"],"Georgia":["ATL"],"Arizona":["PHX"],"Minnesota":["MIN"],
+  "Colorado":["DEN"],"Oregon":["POR"],"Utah":["UTA"],"Oklahoma":["OKC"],"Tennessee":["MEM"],
+  "Wisconsin":["MIL"],"Michigan":["DET"],"Indiana":["IND"],"North Carolina":["CHA"],
+  "Louisiana":["NOP"],"Maryland":["WAS"],"Virginia":["WAS"],"New Jersey":["BKN"],
+};
+
+const NAMES = {"01":"Alabama","02":"Alaska","04":"Arizona","05":"Arkansas","06":"California","08":"Colorado","09":"Connecticut","10":"Delaware","11":"District of Columbia","12":"Florida","13":"Georgia","15":"Hawaii","16":"Idaho","17":"Illinois","18":"Indiana","19":"Iowa","20":"Kansas","21":"Kentucky","22":"Louisiana","23":"Maine","24":"Maryland","25":"Massachusetts","26":"Michigan","27":"Minnesota","28":"Mississippi","29":"Missouri","30":"Montana","31":"Nebraska","32":"Nevada","33":"New Hampshire","34":"New Jersey","35":"New Mexico","36":"New York","37":"North Carolina","38":"North Dakota","39":"Ohio","40":"Oklahoma","41":"Oregon","42":"Pennsylvania","44":"Rhode Island","45":"South Carolina","46":"South Dakota","47":"Tennessee","48":"Texas","49":"Utah","50":"Vermont","51":"Virginia","53":"Washington","54":"West Virginia","55":"Wisconsin","56":"Wyoming"};
+
+
+// ═══════════════════════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════════════════════
+let isDark = false;
+
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getStateFill(name, hover) {
+  if (name === selectedState) return '#ff8c00';
+  if (isDark) {
+    if (hover) return STATE_TEAMS[name] ? '#2a4a38' : '#1a1a28';
+    return STATE_TEAMS[name] ? '#183020' : '#111118';
+  } else {
+    if (hover) return STATE_TEAMS[name] ? '#a5d6a7' : '#d0d3e0';
+    return STATE_TEAMS[name] ? '#c8e6c9' : '#dde0ea';
+  }
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isDark ? 'Claro' : 'Oscuro';
+  document.getElementById('ldot-team').style.background = isDark ? '#183020' : '#81c784';
+  document.getElementById('ldot-team').style.borderColor = isDark ? '#2a4a38' : '#4caf50';
+  // Refresh map colors
+  d3.selectAll('.state').attr('fill', function(d) {
+    const name = NAMES[d.id.toString().padStart(2,'0')];
+    return getStateFill(name, false);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STANDINGS TABLE
+// ═══════════════════════════════════════════════════════════════
+let currentConf = 'east';
+let highlightedAbbr = null;
+
+function logoUrl(nbaId) {
+  return `https://cdn.nba.com/logos/nba/${nbaId}/global/L/logo.svg`;
+}
+
+function buildStandings(conf) {
+  const scroll = document.getElementById('standings-scroll');
+  let html = '';
+
+  const divisions = conf === 'all'
+    ? [{label:'CONFERENCIA ESTE', teams: confRanked('East'), conf:'East'}, {label:'CONFERENCIA OESTE', teams: confRanked('West'), conf:'West'}]
+    : [{label: conf === 'east' ? 'CONFERENCIA ESTE' : 'CONFERENCIA OESTE', teams: confRanked(conf === 'east' ? 'East' : 'West'), conf: conf === 'east' ? 'East' : 'West'}];
+
+  for (const {label, teams, conf: c} of divisions) {
+    // Group by division
+    const divMap = {};
+    teams.forEach(t => { if (!divMap[t.div]) divMap[t.div] = []; divMap[t.div].push(t); });
+
+    html += `<div class="conf-label" style="color:${c==='East'?'var(--conf-e-c)':'var(--conf-w-c)'}">${label}</div>`;
+
+    // Table header
+    html += `<div class="tbl-head">
+      <span>#</span><span></span><span>Equipo</span>
+      <span title="Victorias">V</span>
+      <span title="Derrotas">D</span>
+      <span title="Puntos anotados por partido">PPG</span>
+      <span title="Puntos recibidos por partido">PCG</span>
+      <span title="Porcentaje de victorias">%V</span>
+    </div>`;
+
+    // Sort divisions by total wins desc for ordering
+    const divOrder = Object.entries(divMap).sort((a,b) => b[1].reduce((s,t)=>s+t.w,0) - a[1].reduce((s,t)=>s+t.w,0));
+
+    let confRank = 1;
+    // Flatten all teams in conf order (by wins) for rank numbers
+    const allSorted = [...teams].sort((a,b) => b.w - a.w || a.l - b.l);
+
+    for (const [divName, divTeams] of divOrder) {
+      html += `<div class="div-label" style="color:var(--text-2)">${divName.toUpperCase()}</div>`;
+      for (const t of divTeams.sort((a,b) => b.w - a.w || a.l - b.l)) {
+        const rank = allSorted.findIndex(x => x.abbr === t.abbr) + 1;
+        const isPlayoff = rank <= 6;
+        const isPlayin  = rank >= 7 && rank <= 10;
+        const pctStr    = (t.pct * 100).toFixed(1) + '%';
+        const diffStr   = (t.diff >= 0 ? '+' : '') + t.diff;
+        const nbaTeam   = TEAMS[t.abbr];
+        const nbaId     = nbaTeam ? nbaTeam.nbaId : 0;
+        const isHL      = t.abbr === highlightedAbbr;
+
+        const badgeColor = isPlayoff ? '#ff8c00' : isPlayin ? '#f59e0b' : 'rgba(255,255,255,.18)';
+
+        const rowClass = `s-row${isHL?' highlighted':''}${rank===6?' playoff-line':''}${rank===10?' playin-line':''}`;
+
+        html += `<div class="${rowClass}" onclick="handleStandingClick('${t.abbr}')">
+          <span class="s-rank" style="color:${badgeColor}">${rank}</span>
+          <img class="s-logo" src="${logoUrl(nbaId)}" alt="${t.abbr}"
+            onerror="this.style.opacity='.3'" style="opacity:1">
+          <span class="s-name">${t.name.replace('Los Angeles ','LA ')}</span>
+          <span class="s-cell bold">${t.w}</span>
+          <span class="s-cell">${t.l}</span>
+          <span class="s-cell">${t.pf.toFixed(1)}</span>
+          <span class="s-cell">${t.pa.toFixed(1)}</span>
+          <span class="s-pct">${pctStr}</span>
+        </div>`;
+      }
+    }
+
+    // Legend
+    html += `<div style="padding:8px 10px 6px;display:flex;gap:14px;font-size:9px;color:var(--text-3);border-top:1px solid var(--border-sub)">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8c00;margin-right:4px;vertical-align:middle"></span>Playoffs (1-6)</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:4px;vertical-align:middle"></span>Play-in (7-10)</span>
+    </div>`;
+  }
+
+  scroll.innerHTML = html;
+}
+
+function showConf(conf) {
+  currentConf = conf;
+  document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + conf).classList.add('active');
+  buildStandings(conf);
+}
+
+function handleStandingClick(abbr) {
+  // Find which state this team plays in
+  for (const [state, abbrs] of Object.entries(STATE_TEAMS)) {
+    if (abbrs.includes(abbr)) {
+      selectState(state, abbr);
+      return;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════════════════════════════
+let selectedState = null;
+
+function getGames(abbr) {
+  return GAMES.filter(g => g.home === abbr || g.away === abbr).slice(-5).reverse();
+}
+
+function buildPanel(stateName) {
+  const abbrs = STATE_TEAMS[stateName];
+  document.getElementById('panel-empty').style.display = 'none';
+  document.getElementById('panel-header').style.display = 'block';
+  document.getElementById('panel-scroll').style.display = 'block';
+  document.getElementById('panel-state').textContent = stateName;
+  document.getElementById('clear-btn').style.display = 'inline-block';
+
+  if (!abbrs) {
+    document.getElementById('panel-count').textContent = 'Sin equipo NBA';
+    document.getElementById('panel-scroll').innerHTML = `
+      <div style="text-align:center;padding:40px 16px;color:var(--text-3)">
+        <div style="font-size:32px;margin-bottom:10px">🏟️</div>
+        <div style="font-size:13px">Sin equipo NBA en este estado</div>
+      </div>`;
+    return;
+  }
+
+  const unique = [...new Set(abbrs)];
+  document.getElementById('panel-count').textContent = unique.length + ' equipo' + (unique.length !== 1 ? 's' : '') + ' NBA';
+
+  let html = '';
+  for (const abbr of unique) {
+    const t = TEAMS[abbr];
+    if (!t) continue;
+    const games = getGames(abbr);
+    const wins = games.filter(g => (g.home === abbr ? g.hs : g.as) > (g.home === abbr ? g.as : g.hs)).length;
+    const bgGrad = `linear-gradient(135deg,${t.color}25 0%,transparent 100%)`;
+
+    let playersHTML = '';
+    for (const p of t.players) {
+      playersHTML += `
+        <div class="p-card">
+          <img class="p-img" src="https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png" alt="${p.n}"
+            onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
+          <div class="p-name">${p.n.split(' ').pop()}</div>
+          <div class="p-pos">${p.p}</div>
+        </div>`;
+    }
+
+    let gamesHTML = '';
+    for (const g of games) {
+      const isHome = g.home === abbr;
+      const my = isHome ? g.hs : g.as;
+      const opp = isHome ? g.as : g.hs;
+      const oppAbbr = isHome ? g.away : g.home;
+      const oppT = TEAMS[oppAbbr];
+      const won = my > opp;
+      gamesHTML += `
+        <div class="game-row">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="g-dot" style="background:${won?'#22c55e':'rgba(150,150,150,.4)'}"></div>
+            <span style="color:var(--text-3);font-size:9px;width:14px">${isHome?'vs':'@'}</span>
+            <div class="g-opp-badge" style="background:${oppT?oppT.color:'#bbb'}">
+              <img src="${oppT ? logoUrl(oppT.nbaId) : ''}" style="width:100%;height:100%;object-fit:contain"
+                onerror="this.style.display='none';this.parentNode.textContent='${oppAbbr}'">
+            </div>
+            <span style="color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px">${oppT?oppT.name:oppAbbr}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+            <span class="g-score" style="color:${won?'var(--won-score)':'var(--lost-score)'}">${my}</span>
+            <span style="color:var(--text-3);font-size:10px">-</span>
+            <span class="g-score" style="color:${won?'var(--lost-score)':'var(--won-score)'}">${opp}</span>
+            <span class="g-date">${g.date}</span>
+          </div>
+        </div>`;
+    }
+
+    const recordColor = wins >= Math.ceil(games.length/2) ? '#22c55e' : '#f59e0b';
+    html += `
+      <div class="team-card">
+        <div class="team-top" style="background:${bgGrad}">
+          <div style="position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;opacity:.07;pointer-events:none;overflow:hidden">
+            <img src="${logoUrl(t.nbaId)}" style="height:80px;width:auto">
+          </div>
+          <div class="team-logo-box" style="background:${t.color}">
+            <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain"
+              onerror="this.style.display='none';this.parentNode.textContent='${abbr}'">
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="team-name">${t.name}</div>
+            <div class="team-city">${t.city}</div>
+            <div class="team-pills">
+              <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}">${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</span>
+              <span class="pill pill-d">${t.div}</span>
+            </div>
+          </div>
+          ${games.length>0?`<div class="record-box"><div class="record-num" style="color:${recordColor}">${wins}-${games.length-wins}</div><div style="font-size:9px;color:var(--text-3)">últimos</div></div>`:''}
+        </div>
+        <div class="sec-label">Jugadores Destacados</div>
+        <div class="players-row">${playersHTML}</div>
+        ${gamesHTML?`<div style="border-top:1px solid var(--border-sub)"><div class="sec-label">Últimos Partidos</div>${gamesHTML}</div>`:''}
+      </div>`;
+  }
+  document.getElementById('panel-scroll').innerHTML = html;
+}
+
+function clearPanel() {
+  selectedState = null;
+  highlightedAbbr = null;
+  document.getElementById('panel-empty').style.display = 'flex';
+  document.getElementById('panel-header').style.display = 'none';
+  document.getElementById('panel-scroll').style.display = 'none';
+  document.getElementById('clear-btn').style.display = 'none';
+  document.getElementById('map-hint').textContent = 'Haz click en un estado para ver sus equipos NBA';
+  buildStandings(currentConf);
+}
+
+function clearSelection() {
+  clearPanel();
+  d3.selectAll('.state').attr('fill', d => {
+    const name = NAMES[d.id.toString().padStart(2,'0')];
+    return getStateFill(name, false);
+  });
+}
+
+function selectState(stateName, focusAbbr) {
+  // Reset previous selection color on map
+  if (selectedState) {
+    d3.selectAll('.state').each(function(dd) {
+      const n = NAMES[dd.id.toString().padStart(2,'0')];
+      if (n === selectedState) d3.select(this).attr('fill', getStateFill(n, false));
+    });
+  }
+
+  if (stateName === selectedState && !focusAbbr) {
+    clearPanel();
+    return;
+  }
+
+  selectedState = stateName;
+  highlightedAbbr = focusAbbr || null;
+
+  // Highlight on map
+  d3.selectAll('.state').each(function(dd) {
+    const n = NAMES[dd.id.toString().padStart(2,'0')];
+    if (n === stateName) d3.select(this).attr('fill', '#ff8c00');
+  });
+
+  const hint = STATE_TEAMS[stateName]
+    ? `${stateName} · ${[...new Set(STATE_TEAMS[stateName])].length} equipo(s) NBA`
+    : `${stateName} · Sin equipo NBA`;
+  document.getElementById('map-hint').textContent = hint;
+
+  buildPanel(stateName);
+  buildStandings(currentConf); // re-render to show highlight
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════════════════════
+fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
+  .then(r => r.json())
+  .then(us => {
+    const W = 960, H = 600;
+    const svg = d3.select('#map-svg').attr('viewBox', `0 0 ${W} ${H}`);
+    const proj = d3.geoAlbersUsa().scale(1300).translate([W/2, H/2]);
+    const path = d3.geoPath().projection(proj);
+    const states = topojson.feature(us, us.objects.states);
+
+    svg.append('g').selectAll('path')
+      .data(states.features)
+      .join('path')
+      .attr('class', 'state')
+      .attr('d', path)
+      .attr('stroke', '#c5c8d8')
+      .attr('stroke-width', 0.7)
+      .attr('fill', d => {
+        const name = NAMES[d.id.toString().padStart(2,'0')];
+        return getStateFill(name, false);
+      })
+      .on('mouseover', function(event, d) {
+        const name = NAMES[d.id.toString().padStart(2,'0')];
+        if (name === selectedState) return;
+        d3.select(this).attr('fill', getStateFill(name, true));
+      })
+      .on('mouseout', function(event, d) {
+        const name = NAMES[d.id.toString().padStart(2,'0')];
+        if (name === selectedState) return;
+        d3.select(this).attr('fill', getStateFill(name, false));
+      })
+      .on('click', function(event, d) {
+        const name = NAMES[d.id.toString().padStart(2,'0')];
+        if (!name) return;
+        if (name === selectedState) { clearSelection(); return; }
+        // Reset old
+        d3.selectAll('.state').each(function(dd) {
+          const n = NAMES[dd.id.toString().padStart(2,'0')];
+          if (n === selectedState) d3.select(this).attr('fill', getStateFill(n, false));
+        });
+        d3.select(this).attr('fill', '#ff8c00');
+        selectState(name);
+      });
+
+    svg.append('path')
+      .datum(topojson.mesh(us, us.objects.states, (a,b) => a !== b))
+      .attr('fill','none').attr('stroke','#c5c8d8').attr('stroke-width', 0.8)
+      .attr('d', path);
+  });
+
+// Init standings
+buildStandings('east');
+</script>
+</body>
+</html>
