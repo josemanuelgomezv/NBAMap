@@ -47,6 +47,10 @@
       --pill-w-b:    rgba(239,68,68,.35);
       --scrollbar:   rgba(180,90,0,.3);
       --row-hover:   rgba(30,35,80,.05);
+      --playoff-bg:  rgba(34,197,94,.07);
+      --playin-bg:   rgba(234,179,8,.06);
+      --playoff-bar: #16a34a;
+      --playin-bar:  #ca8a04;
       --s-rank-c:    rgba(30,35,80,.4);
       --s-cell-c:    rgba(30,35,80,.65);
       --s-pct-c:     #c47a0a;
@@ -92,6 +96,10 @@
       --pill-w-b:    rgba(239,68,68,.28);
       --scrollbar:   rgba(255,140,0,.3);
       --row-hover:   rgba(255,255,255,.04);
+      --playoff-bg:  rgba(34,197,94,.07);
+      --playin-bg:   rgba(234,179,8,.05);
+      --playoff-bar: #22c55e;
+      --playin-bar:  #eab308;
       --s-rank-c:    rgba(255,255,255,.3);
       --s-cell-c:    rgba(255,255,255,.6);
       --s-pct-c:     rgba(255,140,0,.9);
@@ -135,8 +143,16 @@
     .s-row{display:grid;grid-template-columns:18px 22px 1fr 28px 28px 28px 28px 34px;gap:0;padding:4px 6px 4px 8px;border-bottom:1px solid var(--border-sub);cursor:pointer;transition:background .12s;align-items:center;background:var(--bg-left-row)}
     .s-row:hover{background:var(--row-hover)}
     .s-row.highlighted{background:var(--accent-bg);border-left:2px solid var(--accent)}
-    .s-row.playoff-line{border-bottom:2px solid rgba(212,112,10,.35)}
-    .s-row.playin-line{border-bottom:2px dashed rgba(212,112,10,.25)}
+    .s-row.playoff{background:var(--playoff-bg)}
+    .s-row.playoff:hover{background:color-mix(in srgb, var(--playoff-bg) 80%, var(--row-hover))}
+    .s-row.playin{background:var(--playin-bg)}
+    .s-row.playin:hover{background:color-mix(in srgb, var(--playin-bg) 80%, var(--row-hover))}
+    .s-row.playoff-line{border-bottom:2px solid rgba(22,163,74,.4)}
+    .s-row.playin-line{border-bottom:2px dashed rgba(202,138,4,.35)}
+    /* Left colored bar per zone */
+    .s-row.playoff{border-left:3px solid var(--playoff-bar)}
+    .s-row.playin{border-left:3px solid var(--playin-bar)}
+    .s-row.highlighted{border-left:3px solid var(--accent) !important}
     .s-rank{font-size:10px;color:var(--s-rank-c);text-align:center;font-weight:600}
     .s-logo{width:20px;height:20px;object-fit:contain}
     .s-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:4px;color:var(--text)}
@@ -161,13 +177,66 @@
     #map-hint{text-align:center;font-size:12px;color:var(--text-3);padding:4px 0;min-height:20px}
     .state{transition:fill .15s;cursor:pointer}
 
+    /* ── Map Tooltip ── */
+    #map-tooltip{
+      position:fixed;
+      pointer-events:none;
+      z-index:999;
+      background:var(--bg-header);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 11px;
+      box-shadow:0 4px 20px rgba(0,0,0,.15);
+      min-width:140px;
+      opacity:0;
+      transition:opacity .15s;
+      transform:translate(-50%,-110%);
+    }
+    #map-tooltip.visible{opacity:1}
+    .tt-state{font-size:10px;color:var(--text-3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+    .tt-teams{display:flex;flex-direction:column;gap:4px}
+    .tt-team{display:flex;align-items:center;gap:6px}
+    .tt-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0}
+    .tt-name{font-size:11px;font-weight:600;color:var(--text)}
+    .tt-city{font-size:9px;color:var(--text-3)}
+    .tt-empty{font-size:10px;color:var(--text-3);font-style:italic}
+
+    /* ── City dot markers ── */
+    .city-dot{cursor:pointer}
+    .city-dot circle{transition:r .15s, opacity .15s}
+    .city-dot:hover circle{r:5}
+    .city-label{pointer-events:none;font-family:'DM Sans',sans-serif;font-weight:700;font-size:8px;letter-spacing:.3px}
+
     /* ── Team panel (RIGHT) ── */
     #panel{width:340px;flex-shrink:0;border-left:1px solid var(--border);background:var(--bg-right);display:flex;flex-direction:column;overflow:hidden;transition:background .3s}
     #panel-header{padding:12px 16px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
     #panel-scroll{flex:1;overflow-y:auto;padding:12px}
+    @keyframes slideInRight{
+      from{opacity:0;transform:translateX(28px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .panel-animate{animation:slideInRight .32s cubic-bezier(.22,.68,0,1.2) both}
+    .team-card{animation:fadeInUp .3s cubic-bezier(.22,.68,0,1.2) both}
+    .team-card:nth-child(1){animation-delay:.04s}
+    .team-card:nth-child(2){animation-delay:.10s}
+    .team-card:nth-child(3){animation-delay:.16s}
+    .team-card:nth-child(4){animation-delay:.22s}
     #panel-scroll::-webkit-scrollbar{width:3px}
     #panel-scroll::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
-    #panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:20px}
+    #panel-empty{display:flex;flex-direction:column;height:100%;text-align:left;padding:0}
+    .e-card{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;transition:background .15s;box-shadow:var(--shadow)}
+    .e-card:hover{background:var(--row-hover);border-color:var(--accent)}
+    .e-logo{width:26px;height:26px;object-fit:contain;flex-shrink:0}
+    .e-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .e-sub{font-size:9px;color:var(--text-3);margin-top:1px}
+    .e-stat{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--accent);margin-left:auto;flex-shrink:0}
+    .e-badge{font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;flex-shrink:0;margin-left:auto}
+    .e-badge-w{background:var(--playoff-bg);color:var(--playoff-bar);border:1px solid var(--playoff-bar)}
+    .e-badge-l{background:var(--playin-bg);color:var(--playin-bar);border:1px solid var(--playin-bar)}
 
     /* Team card */
     .team-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--bg-card);box-shadow:var(--shadow)}
@@ -234,6 +303,20 @@
       #m-panel #panel-empty{height:100%;display:flex}
       #m-panel #panel-header{display:block}
       #m-panel #panel-scroll{flex:1;overflow-y:auto;padding:12px}
+    @keyframes slideInRight{
+      from{opacity:0;transform:translateX(28px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(12px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .panel-animate{animation:slideInRight .32s cubic-bezier(.22,.68,0,1.2) both}
+    .team-card{animation:fadeInUp .3s cubic-bezier(.22,.68,0,1.2) both}
+    .team-card:nth-child(1){animation-delay:.04s}
+    .team-card:nth-child(2){animation-delay:.10s}
+    .team-card:nth-child(3){animation-delay:.16s}
+    .team-card:nth-child(4){animation-delay:.22s}
 
       /* Bottom nav */
       #bottom-nav{
@@ -341,13 +424,36 @@
 
   <!-- RIGHT: Team detail -->
   <div id="panel">
-    <div id="panel-empty">
-      <div style="font-size:46px;margin-bottom:12px">🏀</div>
-      <p style="color:var(--text-3);font-size:12px;line-height:1.8">Haz click en un estado<br>para ver sus equipos, jugadores<br>y resultados recientes</p>
-      <div style="display:flex;gap:16px;margin-top:20px">
-        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">30</div><div style="font-size:9px;color:var(--text-3)">Equipos</div></div>
-        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">20</div><div style="font-size:9px;color:var(--text-3)">Partidos</div></div>
-        <div style="text-align:center"><div class="bebas" style="font-size:26px;color:var(--accent)">2</div><div style="font-size:9px;color:var(--text-3)">Conferencias</div></div>
+    <div id="panel-empty" style="padding:14px;overflow-y:auto;align-items:stretch;justify-content:flex-start;gap:0">
+
+      <!-- Header hint -->
+      <div style="text-align:center;padding:16px 0 14px">
+        <div style="font-size:32px;margin-bottom:6px">🏀</div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.7">Selecciona un estado en el mapa<br>para ver sus equipos</div>
+      </div>
+
+      <!-- Conference leaders -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">🏆 Líderes de Conferencia</div>
+        <div id="empty-leaders" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Today's top performers -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">📊 Mejores Ataques</div>
+        <div id="empty-offense" style="display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+
+      <!-- Best defenses -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">🛡️ Mejores Defensas</div>
+        <div id="empty-defense" style="display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+
+      <!-- Recent results teaser -->
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">🕐 Últimos Resultados</div>
+        <div id="empty-recent" style="display:flex;flex-direction:column;gap:4px"></div>
       </div>
     </div>
     <div id="panel-header" style="display:none">
@@ -568,6 +674,8 @@ const TEAMS = {
     players:[{n:"Scoot Henderson",p:"PG",id:1641720},{n:"Anfernee Simons",p:"SG",id:1629014}]},
   UTA:{nbaId:1610612762,name:"Utah Jazz",             city:"Salt Lake City",conf:"West",div:"Northwest", color:"#002B5C",alt:"#00471B",
     players:[{n:"Lauri Markkanen",p:"PF",id:1628374},{n:"Keyonte George",p:"PG",id:1641719}]},
+  TOR:{nbaId:1610612761,name:"Toronto Raptors",    city:"Toronto, Canadá",conf:"East",div:"Atlantic",  color:"#CE1141",alt:"#000",
+    players:[{n:"Scottie Barnes",p:"PF",id:1630567},{n:"RJ Barrett",p:"SG",id:1629628},{n:"Immanuel Quickley",p:"PG",id:1630193},{n:"Jakob Poeltl",p:"C",id:1627751}]},
   BOS:{nbaId:1610612738,name:"Boston Celtics",        city:"Boston",        conf:"East",div:"Atlantic",  color:"#007A33",alt:"#BA9653",
     players:[{n:"Jayson Tatum",p:"SF",id:1628369},{n:"Jaylen Brown",p:"SG",id:1627759},{n:"Jrue Holiday",p:"PG",id:201950},{n:"Al Horford",p:"C",id:201143}]},
   NYK:{nbaId:1610612752,name:"New York Knicks",       city:"New York",      conf:"East",div:"Atlantic",  color:"#006BB6",alt:"#F58426",
@@ -720,6 +828,98 @@ function setMobileHint(text) {
   if (h) h.textContent = text;
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+// EMPTY PANEL — populate with useful data
+// ═══════════════════════════════════════════════════════════════
+function populateEmptyPanel() {
+  // Conference leaders (top of East + West by wins)
+  const eastLeader = [...STANDINGS_RAW].filter(t=>t.conf==='East').sort((a,b)=>b.w-a.w)[0];
+  const westLeader = [...STANDINGS_RAW].filter(t=>t.conf==='West').sort((a,b)=>b.w-a.w)[0];
+  const leadersEl = document.getElementById('empty-leaders');
+  if (leadersEl) {
+    leadersEl.innerHTML = [eastLeader, westLeader].map(t => {
+      const tm = TEAMS[t.abbr];
+      if (!tm) return '';
+      const conf = t.conf === 'East' ? '🔵 Conf. Este' : '🔴 Conf. Oeste';
+      return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
+        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <div style="flex:1;min-width:0">
+          <div class="e-name">${tm.name}</div>
+          <div class="e-sub">${conf}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="e-stat">${t.w}-${t.l}</div>
+          <div style="font-size:8px;color:var(--text-3)">${(t.pct*100).toFixed(1)}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Top 3 offenses
+  const topOff = [...STANDINGS_RAW].sort((a,b) => b.pf - a.pf).slice(0,3);
+  const offEl = document.getElementById('empty-offense');
+  if (offEl) {
+    offEl.innerHTML = topOff.map((t,i) => {
+      const tm = TEAMS[t.abbr];
+      if (!tm) return '';
+      return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
+        <span style="font-size:11px;font-weight:700;color:var(--text-3);width:14px;text-align:center;flex-shrink:0">${i+1}</span>
+        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <div style="flex:1;min-width:0">
+          <div class="e-name">${tm.name.split(' ').pop()}</div>
+          <div class="e-sub">${tm.city}</div>
+        </div>
+        <div class="e-stat">${t.pf.toFixed(1)}</div>
+        <div style="font-size:8px;color:var(--text-3);margin-left:2px;align-self:flex-end;padding-bottom:2px">PPG</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Top 3 defenses (lowest PA)
+  const topDef = [...STANDINGS_RAW].sort((a,b) => a.pa - b.pa).slice(0,3);
+  const defEl = document.getElementById('empty-defense');
+  if (defEl) {
+    defEl.innerHTML = topDef.map((t,i) => {
+      const tm = TEAMS[t.abbr];
+      if (!tm) return '';
+      return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
+        <span style="font-size:11px;font-weight:700;color:var(--text-3);width:14px;text-align:center;flex-shrink:0">${i+1}</span>
+        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <div style="flex:1;min-width:0">
+          <div class="e-name">${tm.name.split(' ').pop()}</div>
+          <div class="e-sub">${tm.city}</div>
+        </div>
+        <div class="e-stat" style="color:var(--playoff-bar)">${t.pa.toFixed(1)}</div>
+        <div style="font-size:8px;color:var(--text-3);margin-left:2px;align-self:flex-end;padding-bottom:2px">PCG</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Last 5 games from GAMES
+  const recentEl = document.getElementById('empty-recent');
+  if (recentEl) {
+    recentEl.innerHTML = GAMES.slice(-5).reverse().map(g => {
+      const ht = TEAMS[g.home], at = TEAMS[g.away];
+      if (!ht || !at) return '';
+      const homeWon = g.hs > g.as;
+      return `<div class="e-card" onclick="handleStandingClick('${homeWon?g.home:g.away}')">
+        <img class="e-logo" src="${logoUrl(ht.nbaId)}" onerror="this.style.opacity='.3'">
+        <div style="flex:1;min-width:0">
+          <div class="e-name" style="font-size:10px">${ht.name.split(' ').pop()} vs ${at.name.split(' ').pop()}</div>
+          <div class="e-sub">${g.date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${homeWon?'var(--text)':'var(--text-3)'}">${g.hs}</span>
+          <span style="font-size:9px;color:var(--text-3)">-</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${homeWon?'var(--text-3)':'var(--text)'}">${g.as}</span>
+        </div>
+        <span class="e-badge ${homeWon?'e-badge-w':'e-badge-l'}">${homeWon?'V':'D'}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // STANDINGS TABLE
 // ═══════════════════════════════════════════════════════════════
@@ -774,9 +974,11 @@ function buildStandings(conf) {
         const nbaId     = nbaTeam ? nbaTeam.nbaId : 0;
         const isHL      = t.abbr === highlightedAbbr;
 
-        const badgeColor = isPlayoff ? '#ff8c00' : isPlayin ? '#f59e0b' : 'rgba(255,255,255,.18)';
+        const badgeColor = isPlayoff ? 'var(--playoff-bar)' : isPlayin ? 'var(--playin-bar)' : 'var(--text-3)';
 
-        const rowClass = `s-row${isHL?' highlighted':''}${rank===6?' playoff-line':''}${rank===10?' playin-line':''}`;
+        const zoneClass = isPlayoff ? ' playoff' : isPlayin ? ' playin' : '';
+        const cutClass  = rank===6 ? ' playoff-line' : rank===10 ? ' playin-line' : '';
+        const rowClass  = `s-row${isHL?' highlighted':''}${zoneClass}${cutClass}`;
 
         html += `<div class="${rowClass}" onclick="handleStandingClick('${t.abbr}')">
           <span class="s-rank" style="color:${badgeColor}">${rank}</span>
@@ -793,9 +995,21 @@ function buildStandings(conf) {
     }
 
     // Legend
-    html += `<div style="padding:8px 10px 6px;display:flex;gap:14px;font-size:9px;color:var(--text-3);border-top:1px solid var(--border-sub)">
-      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8c00;margin-right:4px;vertical-align:middle"></span>Playoffs (1-6)</span>
-      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:4px;vertical-align:middle"></span>Play-in (7-10)</span>
+    html += `<div style="padding:7px 10px 6px;display:flex;gap:10px;font-size:9px;color:var(--text-3);border-top:1px solid var(--border-sub);flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:4px">
+        <span style="display:inline-block;width:3px;height:12px;border-radius:2px;background:var(--playoff-bar);vertical-align:middle"></span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--playoff-bg);border:1px solid var(--playoff-bar);vertical-align:middle"></span>
+        Playoffs (1-6)
+      </span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <span style="display:inline-block;width:3px;height:12px;border-radius:2px;background:var(--playin-bar);vertical-align:middle"></span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--playin-bg);border:1px solid var(--playin-bar);vertical-align:middle"></span>
+        Play-in (7-10)
+      </span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--row-hover);border:1px solid var(--border);vertical-align:middle"></span>
+        Fuera playoffs
+      </span>
     </div>`;
   }
 
@@ -818,14 +1032,13 @@ function showConf(conf) {
 }
 
 function handleStandingClick(abbr) {
-  // Find which state this team plays in
   for (const [state, abbrs] of Object.entries(STATE_TEAMS)) {
     if (abbrs.includes(abbr)) {
       selectState(state, abbr);
       return;
     }
   }
-  // Team not in the US (e.g. Toronto Raptors) → show info panel directly
+  // Team outside the US (e.g. Toronto Raptors)
   showForeignTeamPanel(abbr);
 }
 
@@ -928,9 +1141,13 @@ function showForeignTeamPanel(abbr) {
   }
 
   const recordColor = wins >= Math.ceil(games.length/2) ? '#22c55e' : '#f59e0b';
-  document.getElementById('panel-scroll').innerHTML = `
+  const psf = document.getElementById('panel-scroll');
+  psf.classList.remove('panel-animate');
+  void psf.offsetWidth;
+  psf.classList.add('panel-animate');
+  psf.innerHTML = `
     <div style="background:var(--accent-bg);border:1px dashed var(--border);border-radius:8px;padding:6px 10px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3)">
-      🍁 Este equipo juega en <strong style="color:var(--text)">Toronto, Canadá</strong> — fuera del mapa de EEUU
+      🍁 Juega en <strong style="color:var(--text)">Toronto, Canadá</strong>
     </div>
     <div class="team-card">
       <div class="team-top" style="background:${bgGrad}">
@@ -981,7 +1198,11 @@ function getGames(abbr) {
 function buildPanel(stateName) {
   const abbrs = STATE_TEAMS[stateName];
   document.getElementById('panel-empty').style.display = 'none';
-  document.getElementById('panel-header').style.display = 'block';
+  const ph = document.getElementById('panel-header');
+  ph.style.display = 'block';
+  ph.classList.remove('panel-animate');
+  void ph.offsetWidth; // force reflow to restart animation
+  ph.classList.add('panel-animate');
   document.getElementById('panel-scroll').style.display = 'block';
   document.getElementById('panel-state').textContent = stateName;
   document.getElementById('clear-btn').style.display = 'inline-block';
@@ -1105,14 +1326,22 @@ function buildPanel(stateName) {
         ${nextHTML}
       </div>`;
   }
-  document.getElementById('panel-scroll').innerHTML = html;
+  const ps = document.getElementById('panel-scroll');
+  ps.classList.remove('panel-animate');
+  void ps.offsetWidth;
+  ps.classList.add('panel-animate');
+  ps.innerHTML = html;
   if (isMobile()) buildPanelMobile(stateName);
 }
 
 function clearPanel() {
   selectedState = null;
   highlightedAbbr = null;
-  document.getElementById('panel-empty').style.display = 'flex';
+  const pe = document.getElementById('panel-empty');
+  pe.style.display = 'flex';
+  pe.classList.remove('panel-animate');
+  void pe.offsetWidth;
+  pe.classList.add('panel-animate');
   document.getElementById('panel-header').style.display = 'none';
   document.getElementById('panel-scroll').style.display = 'none';
   document.getElementById('clear-btn').style.display = 'none';
@@ -1134,17 +1363,17 @@ function selectState(stateName, focusAbbr) {
   selectedState = stateName;
   highlightedAbbr = focusAbbr || null;
 
-  // Deselect previous state (now selectedState !== prev, so getStateFill gives right color)
+  // Deselect previous state
   if (prev && prev !== stateName) {
     d3.selectAll('.state').each(function(dd) {
-      const n = NAMES[dd.id.toString().padStart(2,'0')];
+      const n = NAMES[dd.id?.toString().padStart(2,'0')];
       if (n === prev) d3.select(this).attr('fill', getStateFill(n, false));
     });
   }
 
   // Highlight new state in orange
   d3.selectAll('.state').each(function(dd) {
-    const n = NAMES[dd.id.toString().padStart(2,'0')];
+    const n = NAMES[dd.id?.toString().padStart(2,'0')];
     if (n === stateName) d3.select(this).attr('fill', '#ff8c00');
   });
 
@@ -1162,9 +1391,61 @@ function selectState(stateName, focusAbbr) {
 // ═══════════════════════════════════════════════════════════════
 // MAP  (desktop + mobile)
 // ═══════════════════════════════════════════════════════════════
+
+// City coordinates [lon, lat] for each team
+const CITY_COORDS = {
+  LAL:[-118.24, 34.05], LAC:[-118.24, 34.05], GSW:[-122.39, 37.77],
+  SAC:[-121.49, 38.58], PHX:[-112.07, 33.45], DAL:[-96.80, 32.78],
+  HOU:[-95.37, 29.76],  SAS:[-98.49, 29.42],  NOP:[-90.07, 29.95],
+  DEN:[-104.99, 39.74], MIN:[-93.27, 44.98],  OKC:[-97.52, 35.47],
+  POR:[-122.68, 45.52], UTA:[-111.89, 40.76], BOS:[-71.06, 42.36],
+  NYK:[-73.99, 40.75],  BKN:[-73.95, 40.68],  PHI:[-75.16, 39.95],
+  MIA:[-80.19, 25.77],  ORL:[-81.38, 28.54],  ATL:[-84.39, 33.75],
+  WAS:[-77.01, 38.91],  CLE:[-81.69, 41.50],  CHI:[-87.63, 41.88],
+  MIL:[-87.91, 43.04],  DET:[-83.05, 42.33],  IND:[-86.16, 39.77],
+  CHA:[-80.84, 35.23],  MEM:[-90.05, 35.15],  TOR:[-79.38, 43.65],
+};
+
+// State → teams for tooltip
+function getTooltipHTML(stateName) {
+  const abbrs = STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
+  if (!abbrs.length) return `<div class="tt-empty">Sin equipo NBA</div>`;
+  return abbrs.map(abbr => {
+    const t = TEAMS[abbr];
+    if (!t) return '';
+    return `<div class="tt-team">
+      <img class="tt-logo" src="${logoUrl(t.nbaId)}" onerror="this.style.opacity='.3'">
+      <div>
+        <div class="tt-name">${t.name.replace('Los Angeles ','LA ')}</div>
+        <div class="tt-city">${t.city}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Tooltip show/hide — getElementById at call time (element is after script tag)
+function showTooltip(event, stateName) {
+  const tt = document.getElementById('map-tooltip');
+  if (!tt) return;
+  document.getElementById('tt-state-name').textContent = stateName || '';
+  document.getElementById('tt-teams-list').innerHTML = getTooltipHTML(stateName);
+  tt.classList.add('visible');
+  moveTooltip(event);
+}
+function moveTooltip(event) {
+  const tt = document.getElementById('map-tooltip');
+  if (!tt) return;
+  tt.style.left = event.clientX + 'px';
+  tt.style.top  = event.clientY + 'px';
+}
+function hideTooltip() {
+  const tt = document.getElementById('map-tooltip');
+  if (tt) tt.classList.remove('visible');
+}
+
 function buildMap(svgId, usData) {
   const W = 960, H = 600;
-  const svg = d3.select('#' + svgId).attr('viewBox', `0 0 ${W} ${H}`);
+  const svg  = d3.select('#' + svgId).attr('viewBox', `0 0 ${W} ${H}`);
   const proj = d3.geoAlbersUsa().scale(1300).translate([W/2, H/2]);
   const path = d3.geoPath().projection(proj);
   const states = topojson.feature(usData, usData.objects.states);
@@ -1184,11 +1465,16 @@ function buildMap(svgId, usData) {
       const name = NAMES[d.id.toString().padStart(2,'0')];
       if (name === selectedState) return;
       d3.select(this).attr('fill', getStateFill(name, true));
+      showTooltip(event, name);
+    })
+    .on('mousemove', function(event) {
+      moveTooltip(event);
     })
     .on('mouseout', function(event, d) {
       const name = NAMES[d.id.toString().padStart(2,'0')];
       if (name === selectedState) return;
       d3.select(this).attr('fill', getStateFill(name, false));
+      hideTooltip();
     })
     .on('click', function(event, d) {
       const name = NAMES[d.id.toString().padStart(2,'0')];
@@ -1200,12 +1486,81 @@ function buildMap(svgId, usData) {
     .datum(topojson.mesh(usData, usData.objects.states, (a,b) => a !== b))
     .attr('fill','none').attr('stroke','var(--map-border)').attr('stroke-width', 0.8)
     .attr('d', path);
+
+  // ── City dot markers ─────────────────────────────────────────
+  // Group teams by unique city coords
+  const cityGroups = {};
+  Object.entries(CITY_COORDS).forEach(([abbr, coords]) => {
+    const key = coords.join(',');
+    if (!cityGroups[key]) cityGroups[key] = {coords, abbrs:[]};
+    cityGroups[key].abbrs.push(abbr);
+  });
+
+  Object.values(cityGroups).forEach(({coords, abbrs}) => {
+    const xy = proj(coords);
+    if (!xy) return;
+    const t = TEAMS[abbrs[0]];
+    if (!t) return;
+
+    const g = svg.append('g')
+      .attr('class', 'city-dot')
+      .attr('transform', `translate(${xy[0]},${xy[1]})`)
+      .on('click', () => {
+        // Find which state this city belongs to
+        for (const [state, sAbbrs] of Object.entries(STATE_TEAMS)) {
+          if (abbrs.some(a => sAbbrs.includes(a))) { selectState(state); return; }
+        }
+      })
+      .on('mouseover', (event) => {
+        const stateName = Object.entries(STATE_TEAMS).find(([,sa]) => abbrs.some(a=>sa.includes(a)))?.[0];
+        if (stateName) showTooltip(event, stateName);
+      })
+      .on('mousemove', moveTooltip)
+      .on('mouseout', hideTooltip);
+
+    // Outer glow ring
+    g.append('circle')
+      .attr('r', 7)
+      .attr('fill', t.color)
+      .attr('opacity', .18);
+
+    // Main dot
+    g.append('circle')
+      .attr('r', 3.5)
+      .attr('fill', t.color)
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.2)
+      .attr('opacity', .9);
+
+    // Team logo inside dot (small)
+    g.append('image')
+      .attr('href', logoUrl(t.nbaId))
+      .attr('x', -7).attr('y', -7)
+      .attr('width', 14).attr('height', 14)
+      .attr('opacity', .0)  // hidden, dot is enough
+      .attr('pointer-events', 'none');
+
+    // City label
+    const labelY = xy[1] > 250 ? -9 : 14;  // flip label above/below based on position
+    g.append('text')
+      .attr('class', 'city-label')
+      .attr('x', abbrs.length > 1 ? -2 : 0)
+      .attr('y', labelY)
+      .attr('text-anchor', 'middle')
+      .attr('fill', t.color)
+      .attr('font-size', '7.5px')
+      .attr('font-weight', '700')
+      .attr('letter-spacing', '.3px')
+      .attr('stroke', 'var(--bg)')
+      .attr('stroke-width', 2.5)
+      .attr('paint-order', 'stroke')
+      .text(abbrs.length > 1 ? abbrs.join('/') : abbrs[0]);
+  });
 }
 
-// Refresh all map fills (called on theme toggle + selection changes)
 function refreshAllMapFills() {
   d3.selectAll('.state').attr('fill', function(d) {
-    const name = NAMES[d.id.toString().padStart(2,'0')];
+    const name = NAMES[d.id?.toString().padStart(2,'0')];
     return getStateFill(name, false);
   });
 }
@@ -1213,143 +1568,16 @@ function refreshAllMapFills() {
 fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
   .then(r => r.json())
   .then(us => {
-    buildMap('map-svg', us);    // desktop
-    buildMap('map-svg-m', us);  // mobile
+    buildMap('map-svg',   us);
+    buildMap('map-svg-m', us);
   });
-
-
-// ═══════════════════════════════════════════════════════════════
-// LIVE DATA REFRESH (ESPN public API)
-// ═══════════════════════════════════════════════════════════════
-
-// ESPN abbr → our abbr mapping (differences only)
-const ESPN_ABBR = {
-  'GS':'GSW','SA':'SAS','NO':'NOP','NY':'NYK','PHO':'PHX',
-  'UTAH':'UTA','MEM':'MEM','LAC':'LAC','LAL':'LAL',
-};
-function fixAbbr(a) { return ESPN_ABBR[a] || a; }
-
-// ESPN division name → our div name
-const ESPN_DIV = {
-  'Atlantic':'Atlantic','Central':'Central','Southeast':'Southeast',
-  'Northwest':'Northwest','Pacific':'Pacific','Southwest':'Southwest',
-};
-
-async function refreshData() {
-  const btn = document.getElementById('refresh-btn');
-  const status = document.getElementById('refresh-status');
-  btn.disabled = true;
-  btn.classList.add('spinning');
-  status.textContent = 'Conectando…';
-
-  try {
-    // ── 1. Fetch standings ──────────────────────────────────────
-    const sRes = await fetch(
-      'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?season=2026',
-      { cache: 'no-store' }
-    );
-    if (!sRes.ok) throw new Error('standings ' + sRes.status);
-    const sData = await sRes.json();
-
-    // Parse ESPN standings into our format
-    const newStandings = [];
-    for (const conf of sData.children || []) {
-      const confName = conf.name.includes('East') ? 'East' : 'West';
-      for (const div of conf.children || []) {
-        const divName = ESPN_DIV[div.name] || div.name;
-        for (const entry of div.standings?.entries || []) {
-          const abbr = fixAbbr(entry.team.abbreviation);
-          const name = entry.team.displayName;
-          const stats = {};
-          for (const s of entry.stats || []) stats[s.name] = s.value;
-          const w   = stats.wins   || 0;
-          const l   = stats.losses || 0;
-          const pf  = +(stats.avgPointsFor    || stats.pointsFor    / (w+l||1)).toFixed(1);
-          const pa  = +(stats.avgPointsAgainst || stats.pointsAgainst / (w+l||1)).toFixed(1);
-          newStandings.push({ abbr, name, conf:confName, div:divName, w, l, pf, pa });
-        }
-      }
-    }
-
-    if (newStandings.length >= 20) {
-      // Replace live data into STANDINGS_RAW
-      STANDINGS_RAW.length = 0;
-      newStandings.forEach(t => {
-        t.gp   = t.w + t.l;
-        t.pct  = t.gp > 0 ? t.w / t.gp : 0;
-        t.diff = +(t.pf - t.pa).toFixed(1);
-        STANDINGS_RAW.push(t);
-      });
-      buildStandings(currentConf);
-    }
-
-    // ── 2. Fetch today's scoreboard ─────────────────────────────
-    const gRes = await fetch(
-      'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
-      { cache: 'no-store' }
-    );
-    if (gRes.ok) {
-      const gData = await gRes.json();
-      const today = gData.events || [];
-      if (today.length > 0) {
-        const newGames = [];
-        const newNext = {};
-        for (const ev of today) {
-          const comp = ev.competitions?.[0];
-          if (!comp) continue;
-          const teams = comp.competitors || [];
-          const home = teams.find(t => t.homeAway === 'home');
-          const away = teams.find(t => t.homeAway === 'away');
-          if (!home || !away) continue;
-          const hAbbr = fixAbbr(home.team.abbreviation);
-          const aAbbr = fixAbbr(away.team.abbreviation);
-          const hs = parseInt(home.score) || 0;
-          const as_ = parseInt(away.score) || 0;
-          const evDate = new Date(ev.date);
-          const dateStr = evDate.toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace('.','');
-          const timeStr = evDate.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-          const status = comp.status?.type?.state;
-          if (status === 'in' || status === 'post') {
-            // Finished or live → recent results
-            newGames.push({ home:hAbbr, away:aAbbr, hs, as:as_, date:dateStr });
-          } else if (status === 'pre') {
-            // Upcoming → próximo partido
-            newNext[hAbbr] = {opp:aAbbr, isHome:true,  date:dateStr, time:timeStr};
-            newNext[aAbbr] = {opp:hAbbr, isHome:false, date:dateStr, time:timeStr};
-          }
-        }
-        if (newGames.length > 0) {
-          GAMES.length = 0;
-          newGames.forEach(g => GAMES.push(g));
-        }
-        if (Object.keys(newNext).length > 0) {
-          Object.assign(NEXT_GAMES, newNext);
-        }
-        // Refresh right panel if open
-        if (selectedState) buildPanel(selectedState);
-      }
-    }
-
-    // ── Done ────────────────────────────────────────────────────
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-    status.textContent = 'Actualizado ' + timeStr;
-    const mStatus = document.getElementById('refresh-status-m');
-    if (mStatus) mStatus.textContent = 'Actualizado ' + timeStr;
-
-  } catch(err) {
-    console.error('Refresh error:', err);
-    status.textContent = '⚠ Sin conexión';
-    const mStatus2 = document.getElementById('refresh-status-m');
-    if (mStatus2) mStatus2.textContent = '⚠ Sin conexión';
-  } finally {
-    btn.disabled = false;
-    btn.classList.remove('spinning');
-  }
-}
-
 // Init standings
 buildStandings('east');
+populateEmptyPanel();
 </script>
+<div id="map-tooltip">
+  <div class="tt-state" id="tt-state-name"></div>
+  <div class="tt-teams" id="tt-teams-list"></div>
+</div>
 </body>
 </html>
