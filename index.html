@@ -184,22 +184,28 @@
       z-index:999;
       background:var(--bg-header);
       border:1px solid var(--border);
-      border-radius:10px;
-      padding:8px 11px;
-      box-shadow:0 4px 20px rgba(0,0,0,.15);
-      min-width:140px;
+      border-radius:12px;
+      padding:0;
+      box-shadow:0 8px 32px rgba(0,0,0,.18);
+      width:220px;
       opacity:0;
-      transition:opacity .15s;
-      transform:translate(-50%,-110%);
+      transition:opacity .18s;
+      transform:translate(-50%,-108%);
+      overflow:hidden;
     }
     #map-tooltip.visible{opacity:1}
-    .tt-state{font-size:10px;color:var(--text-3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
-    .tt-teams{display:flex;flex-direction:column;gap:4px}
-    .tt-team{display:flex;align-items:center;gap:6px}
-    .tt-logo{width:18px;height:18px;object-fit:contain;flex-shrink:0}
-    .tt-name{font-size:11px;font-weight:600;color:var(--text)}
-    .tt-city{font-size:9px;color:var(--text-3)}
-    .tt-empty{font-size:10px;color:var(--text-3);font-style:italic}
+    .tt-stadium-img{width:100%;height:100px;object-fit:cover;object-position:center;display:block;background:var(--bg-left)}
+    .tt-stadium-placeholder{width:100%;height:100px;background:var(--bg-left);display:flex;align-items:center;justify-content:center;font-size:28px}
+    .tt-body{padding:8px 10px 9px}
+    .tt-state{font-size:9px;color:var(--text-3);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+    .tt-teams{display:flex;flex-direction:column;gap:5px}
+    .tt-team{display:flex;align-items:center;gap:7px}
+    .tt-logo{width:20px;height:20px;object-fit:contain;flex-shrink:0}
+    .tt-info{flex:1;min-width:0}
+    .tt-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tt-arena{font-size:9px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tt-empty{font-size:10px;color:var(--text-3);font-style:italic;padding:4px 0}
+    .tt-divider{height:1px;background:var(--border-sub);margin:4px 0}
 
     /* ── City dot markers ── */
     .city-dot{cursor:pointer}
@@ -240,6 +246,34 @@
 
     /* Team card */
     .team-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--bg-card);box-shadow:var(--shadow)}
+    .team-hero{
+      position:relative;height:110px;overflow:hidden;
+      display:flex;align-items:flex-end;
+    }
+    .team-hero-bg{
+      position:absolute;inset:0;
+      background-size:cover;background-position:center top;
+      filter:saturate(1.1) brightness(.85);
+      transition:transform .4s ease;
+    }
+    .team-card:hover .team-hero-bg{transform:scale(1.04)}
+    .team-hero-gradient{
+      position:absolute;inset:0;
+    }
+    .team-hero-content{
+      position:relative;z-index:1;
+      padding:10px 14px;display:flex;align-items:flex-end;gap:10px;width:100%;
+    }
+    .team-hero-logo{
+      width:52px;height:52px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      padding:5px;flex-shrink:0;
+      box-shadow:0 2px 12px rgba(0,0,0,.35);
+    }
+    .team-hero-info{flex:1;min-width:0}
+    .team-hero-name{font-size:15px;font-weight:700;color:#fff;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+    .team-hero-city{font-size:10px;color:rgba(255,255,255,.7);margin-top:1px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+    .team-hero-record{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5);flex-shrink:0}
     .team-top{padding:12px 14px 10px;display:flex;gap:10px;align-items:center;position:relative;overflow:hidden}
     .team-logo-box{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:4px;overflow:hidden}
     .team-name{font-size:14px;font-weight:600;line-height:1.25;color:var(--text)}
@@ -300,23 +334,49 @@
 
       /* Team panel mobile */
       #m-panel{background:var(--bg-right)}
-      #m-panel #panel-empty{height:100%;display:flex}
+      #m-panel #panel-empty{height:100%;display:flex;flex-direction:column;overflow-y:auto}
       #m-panel #panel-header{display:block}
-      #m-panel #panel-scroll{flex:1;overflow-y:auto;padding:12px}
-    @keyframes slideInRight{
-      from{opacity:0;transform:translateX(28px)}
-      to{opacity:1;transform:translateX(0)}
-    }
-    @keyframes fadeInUp{
-      from{opacity:0;transform:translateY(12px)}
-      to{opacity:1;transform:translateY(0)}
-    }
-    .panel-animate{animation:slideInRight .32s cubic-bezier(.22,.68,0,1.2) both}
-    .team-card{animation:fadeInUp .3s cubic-bezier(.22,.68,0,1.2) both}
-    .team-card:nth-child(1){animation-delay:.04s}
-    .team-card:nth-child(2){animation-delay:.10s}
-    .team-card:nth-child(3){animation-delay:.16s}
-    .team-card:nth-child(4){animation-delay:.22s}
+      #m-panel #panel-scroll{flex:1;overflow-y:auto;padding:10px}
+
+      /* Hero card mobile — taller, full-width feel */
+      .team-hero{height:140px}
+      .team-hero-name{font-size:17px}
+      .team-hero-record{font-size:26px}
+      .team-hero-logo{width:58px;height:58px}
+
+      /* Tooltip hidden on mobile (touch devices use tap → panel) */
+      #map-tooltip{display:none !important}
+
+      /* City dots slightly bigger on mobile for touch */
+      .city-dot circle{r:5}
+
+      /* Standings table — compact columns on narrow screens */
+      .tbl-head, .s-row{
+        grid-template-columns:16px 20px 1fr 26px 26px 34px;
+      }
+      /* Hide PPG and PCG columns on very narrow screens, keep %V */
+      .tbl-head span:nth-child(6),
+      .tbl-head span:nth-child(7),
+      .s-row .s-cell:nth-child(6),
+      .s-row .s-cell:nth-child(7){display:none}
+
+      /* Empty panel sections — tighter padding */
+      #panel-empty>div{padding:10px 12px}
+      .e-card{padding:8px 10px}
+
+      /* Panel scroll padding */
+      #panel-scroll{padding:10px}
+
+      /* Players row scroll — bigger touch targets */
+      .p-card{width:78px}
+      .p-img{width:64px;height:64px}
+
+      /* Game rows — easier to tap */
+      .game-row{padding:9px 12px}
+      .g-score{font-size:22px}
+
+      /* Próximo partido card */
+      .team-hero-city{font-size:11px}
 
       /* Bottom nav */
       #bottom-nav{
@@ -930,6 +990,25 @@ function logoUrl(nbaId) {
   return `https://cdn.nba.com/logos/nba/${nbaId}/global/L/logo.svg`;
 }
 
+
+// Scroll standings to show the highlighted team
+function scrollToHighlighted() {
+  // Try both desktop and mobile scroll containers
+  ['standings-scroll', 'standings-scroll-m'].forEach(id => {
+    const container = document.getElementById(id);
+    if (!container) return;
+    const highlighted = container.querySelector('.s-row.highlighted');
+    if (!highlighted) return;
+    // Smooth scroll so the row lands in the center of the container
+    const containerTop    = container.getBoundingClientRect().top;
+    const rowTop          = highlighted.getBoundingClientRect().top;
+    const containerHeight = container.clientHeight;
+    const rowHeight       = highlighted.clientHeight;
+    const offset          = rowTop - containerTop - containerHeight / 2 + rowHeight / 2;
+    container.scrollBy({ top: offset, behavior: 'smooth' });
+  });
+}
+
 function buildStandings(conf) {
   const scroll = document.getElementById('standings-scroll');
   let html = '';
@@ -1017,6 +1096,10 @@ function buildStandings(conf) {
   // Mirror to mobile
   const mScroll = document.getElementById('standings-scroll-m');
   if (mScroll) mScroll.innerHTML = html;
+  // Scroll to highlighted team if any
+  if (highlightedAbbr || selectedState) {
+    requestAnimationFrame(() => scrollToHighlighted());
+  }
 }
 
 function showConf(conf) {
@@ -1195,6 +1278,25 @@ function getGames(abbr) {
   return GAMES.filter(g => g.home === abbr || g.away === abbr).slice(-5).reverse();
 }
 
+
+// Team background images (ESPN CDN - reliable in browser)
+// Using ESPN scoreboard team photos
+function getTeamBgUrl(abbr) {
+  // ESPN uses lowercase 3-letter codes (mostly matching ours)
+  const espnMap = {
+    GSW:'gsw', NOP:'no', SAS:'sa', OKC:'okc', NYK:'ny', BKN:'bkn',
+    PHX:'phx', PHI:'phi', MIA:'mia', MIL:'mil', CLE:'cle', POR:'por',
+    LAL:'lal', LAC:'lac', MIN:'min', DEN:'den', ATL:'atl', BOS:'bos',
+    CHI:'chi', DAL:'dal', DET:'det', GSW:'gsw', HOU:'hou', IND:'ind',
+    LAC:'lac', LAL:'lal', MEM:'mem', MIA:'mia', MIL:'mil', MIN:'min',
+    NOP:'no',  NYK:'ny',  OKC:'okc', ORL:'orl', PHI:'phi', PHX:'phx',
+    POR:'por', SAC:'sac', SAS:'sa',  TOR:'tor', UTA:'utah', WAS:'wsh',
+    CHA:'cha', CLE:'cle', DEN:'den', DET:'det',
+  };
+  const code = espnMap[abbr] || abbr.toLowerCase();
+  return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/scoreboard/${code}.png&h=300&w=300&scale=crop&location=origin&transparent=false`;
+}
+
 function buildPanel(stateName) {
   const abbrs = STATE_TEAMS[stateName];
   document.getElementById('panel-empty').style.display = 'none';
@@ -1302,23 +1404,24 @@ function buildPanel(stateName) {
 
     html += `
       <div class="team-card">
-        <div class="team-top" style="background:${bgGrad}">
-          <div style="position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;opacity:.07;pointer-events:none;overflow:hidden">
-            <img src="${logoUrl(t.nbaId)}" style="height:80px;width:auto">
-          </div>
-          <div class="team-logo-box" style="background:${t.color}">
-            <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain"
-              onerror="this.style.display='none';this.parentNode.textContent='${abbr}'">
-          </div>
-          <div style="flex:1;min-width:0">
-            <div class="team-name">${t.name}</div>
-            <div class="team-city">${t.city}</div>
-            <div class="team-pills">
-              <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}">${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</span>
-              <span class="pill pill-d">${t.div}</span>
+        <div class="team-hero">
+          <div class="team-hero-bg" style="background-image:url('${getTeamBgUrl(abbr)}'),linear-gradient(135deg,${t.color} 0%,${t.alt||t.color} 100%)"></div>
+          <div class="team-hero-gradient" style="background:linear-gradient(to top, ${t.color}ee 0%, ${t.color}88 40%, transparent 100%)"></div>
+          <div class="team-hero-content">
+            <div class="team-hero-logo" style="background:${t.color}cc;backdrop-filter:blur(4px)">
+              <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain"
+                onerror="this.style.display='none';this.parentNode.textContent='${abbr}'">
             </div>
+            <div class="team-hero-info">
+              <div class="team-hero-name">${t.name}</div>
+              <div class="team-hero-city">${t.city} · ${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</div>
+              <div class="team-pills" style="margin-top:5px">
+                <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}" style="border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.9);background:rgba(255,255,255,.15)">${t.conf==='East'?'Este':'Oeste'}</span>
+                <span class="pill pill-d" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7);background:rgba(255,255,255,.1)">${t.div}</span>
+              </div>
+            </div>
+            ${games.length>0?`<div class="team-hero-record">${wins}-${games.length-wins}</div>`:''}
           </div>
-          ${games.length>0?`<div class="record-box"><div class="record-num" style="color:${recordColor}">${wins}-${games.length-wins}</div><div style="font-size:9px;color:var(--text-3)">últimos</div></div>`:''}
         </div>
         <div class="sec-label">Jugadores Destacados</div>
         <div class="players-row">${playersHTML}</div>
@@ -1407,30 +1510,132 @@ const CITY_COORDS = {
 };
 
 // State → teams for tooltip
-function getTooltipHTML(stateName) {
+function getTooltipHTML(stateName, stadiumUrl) {
   const abbrs = STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
-  if (!abbrs.length) return `<div class="tt-empty">Sin equipo NBA</div>`;
-  return abbrs.map(abbr => {
+
+  const imgHTML = stadiumUrl && stadiumUrl !== 'error' && stadiumUrl !== 'loading'
+    ? `<img class="tt-stadium-img" id="tt-stadium" src="${stadiumUrl}"
+        onerror="this.style.display='none'">`
+    : `<div class="tt-stadium-placeholder">${stadiumUrl==='loading'?'<span style="font-size:11px;color:var(--text-3)">Cargando…</span>':'🏟️'}</div>`;
+
+  if (!abbrs.length) {
+    return imgHTML + `<div class="tt-body"><div class="tt-state">${stateName}</div><div class="tt-empty">Sin equipo NBA</div></div>`;
+  }
+
+  const uniqueArenas = [...new Set(abbrs.map(a => ARENAS[a]).filter(Boolean))];
+  const arenaLine = uniqueArenas.length === 1
+    ? `<div style="font-size:9px;color:var(--text-3);margin-top:3px;padding-top:4px;border-top:1px solid var(--border-sub)">🏟️ ${uniqueArenas[0]}</div>`
+    : '';
+
+  const teamsHTML = abbrs.map((abbr, i) => {
     const t = TEAMS[abbr];
     if (!t) return '';
-    return `<div class="tt-team">
+    const arena = uniqueArenas.length > 1 ? ARENAS[abbr] : '';
+    return `${i > 0 ? '<div class="tt-divider"></div>' : ''}
+    <div class="tt-team">
       <img class="tt-logo" src="${logoUrl(t.nbaId)}" onerror="this.style.opacity='.3'">
-      <div>
+      <div class="tt-info">
         <div class="tt-name">${t.name.replace('Los Angeles ','LA ')}</div>
-        <div class="tt-city">${t.city}</div>
+        ${arena ? `<div class="tt-arena">🏟️ ${arena}</div>` : `<div class="tt-arena">${t.city}</div>`}
       </div>
     </div>`;
   }).join('');
+
+  return `${imgHTML}<div class="tt-body">
+    <div class="tt-state">${stateName}</div>
+    <div class="tt-teams">${teamsHTML}</div>
+    ${arenaLine}
+  </div>`;
 }
 
+
+// Arena Wikipedia page titles for dynamic image lookup
+const ARENA_WIKI = {
+  LAL:'Crypto.com_Arena',      LAC:'Crypto.com_Arena',
+  GSW:'Chase_Center_(San_Francisco)', SAC:'Golden_1_Center',
+  PHX:'Footprint_Center',      DAL:'American_Airlines_Center',
+  HOU:'Toyota_Center_(Houston)',SAS:'AT%26T_Center',
+  NOP:'Smoothie_King_Center',  DEN:'Ball_Arena',
+  MIN:'Target_Center',         OKC:'Paycom_Center',
+  POR:'Moda_Center',           UTA:'Delta_Center',
+  BOS:'TD_Garden',             NYK:'Madison_Square_Garden',
+  BKN:'Barclays_Center',       PHI:'Wells_Fargo_Center_(Philadelphia)',
+  MIA:'Kaseya_Center',         ORL:'Kia_Center',
+  ATL:'State_Farm_Arena_(Atlanta)', WAS:'Capital_One_Arena',
+  CLE:'Rocket_Mortgage_FieldHouse', CHI:'United_Center',
+  MIL:'Fiserv_Forum',          DET:'Little_Caesars_Arena',
+  IND:'Gainbridge_Fieldhouse', CHA:'Spectrum_Center',
+  MEM:'FedEx_Forum',           TOR:'Scotiabank_Arena',
+};
+
+// Cache for fetched stadium images { abbr: url|'loading'|'error' }
+const STADIUM_CACHE = {};
+
+async function fetchStadiumImage(abbr) {
+  if (STADIUM_CACHE[abbr]) return STADIUM_CACHE[abbr];
+  const title = ARENA_WIKI[abbr];
+  if (!title) { STADIUM_CACHE[abbr]='error'; return 'error'; }
+  STADIUM_CACHE[abbr] = 'loading';
+  try {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${title}&prop=pageimages&pithumbsize=400&format=json&origin=*&redirects=1`;
+    const r = await fetch(url);
+    const data = await r.json();
+    const pages = data.query.pages;
+    const page  = Object.values(pages)[0];
+    const img   = page?.thumbnail?.source || 'error';
+    STADIUM_CACHE[abbr] = img;
+    return img;
+  } catch(e) {
+    STADIUM_CACHE[abbr] = 'error';
+    return 'error';
+  }
+}
+
+// Arena names
+const ARENAS = {
+  LAL:'Crypto.com Arena', LAC:'Crypto.com Arena', GSW:'Chase Center',
+  SAC:'Golden 1 Center',  PHX:'Footprint Center', DAL:'American Airlines Center',
+  HOU:'Toyota Center',    SAS:'AT&T Center',       NOP:'Smoothie King Center',
+  DEN:'Ball Arena',       MIN:'Target Center',     OKC:'Paycom Center',
+  POR:'Moda Center',      UTA:'Delta Center',      BOS:'TD Garden',
+  NYK:'Madison Square Garden', BKN:'Barclays Center', PHI:'Wells Fargo Center',
+  MIA:'Kaseya Center',    ORL:'Amway Center',      ATL:'State Farm Arena',
+  WAS:'Capital One Arena',CLE:'Rocket Mortgage FieldHouse', CHI:'United Center',
+  MIL:'Fiserv Forum',     DET:'Little Caesars Arena', IND:'Gainbridge Fieldhouse',
+  CHA:'Spectrum Center',  MEM:'FedEx Forum',       TOR:'Scotiabank Arena',
+};
+
 // Tooltip show/hide — getElementById at call time (element is after script tag)
-function showTooltip(event, stateName) {
+async function showTooltip(event, stateName) {
   const tt = document.getElementById('map-tooltip');
   if (!tt) return;
-  document.getElementById('tt-state-name').textContent = stateName || '';
-  document.getElementById('tt-teams-list').innerHTML = getTooltipHTML(stateName);
+  tt._currentState = stateName;
+
+  const abbrs = STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
+  const firstAbbr = abbrs[0];
+
+  // Show immediately with placeholder while image loads
+  const cached = firstAbbr ? STADIUM_CACHE[firstAbbr] : null;
+  tt.innerHTML = getTooltipHTML(stateName, cached || 'loading');
   tt.classList.add('visible');
   moveTooltip(event);
+
+  // If not cached yet, fetch and update image only
+  if (firstAbbr && !cached) {
+    const imgUrl = await fetchStadiumImage(firstAbbr);
+    // Only update if tooltip still shows same state
+    if (tt._currentState === stateName && tt.classList.contains('visible')) {
+      const placeholder = tt.querySelector('.tt-stadium-placeholder');
+      if (placeholder && imgUrl !== 'error') {
+        const img = document.createElement('img');
+        img.className = 'tt-stadium-img';
+        img.id = 'tt-stadium';
+        img.src = imgUrl;
+        img.onerror = () => img.style.display = 'none';
+        placeholder.replaceWith(img);
+      }
+    }
+  }
 }
 function moveTooltip(event) {
   const tt = document.getElementById('map-tooltip');
@@ -1575,9 +1780,6 @@ fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
 buildStandings('east');
 populateEmptyPanel();
 </script>
-<div id="map-tooltip">
-  <div class="tt-state" id="tt-state-name"></div>
-  <div class="tt-teams" id="tt-teams-list"></div>
-</div>
+<div id="map-tooltip"></div>
 </body>
 </html>
