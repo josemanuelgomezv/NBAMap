@@ -116,12 +116,16 @@
     #header{border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg-header);transition:background .3s}
 
     /* Theme toggle */
-    #theme-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s;user-select:none}
-    #theme-toggle:hover{background:var(--accent-bg);border-color:var(--accent)}
+    #theme-toggle,#league-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-2);font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s;user-select:none}
+    #theme-toggle:hover,#league-toggle:hover:not(:disabled){background:var(--accent-bg);border-color:var(--accent)}
+    #league-toggle{font-weight:600;letter-spacing:.04em}
+    #league-toggle:disabled{opacity:.6;cursor:wait}
+    #league-toggle .lg-opt{transition:color .2s;color:var(--text-3)}
+    #league-toggle .lg-opt.active{color:var(--accent)}
     .toggle-track{width:32px;height:18px;border-radius:9px;background:var(--border);position:relative;transition:background .25s;flex-shrink:0}
-    body.dark .toggle-track{background:var(--accent)}
+    body.dark #theme-toggle .toggle-track,#league-toggle.on .toggle-track{background:var(--accent)}
     .toggle-thumb{width:13px;height:13px;border-radius:50%;background:#fff;position:absolute;top:2.5px;left:2.5px;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-    body.dark .toggle-thumb{transform:translateX(14px)}
+    body.dark #theme-toggle .toggle-thumb,#league-toggle.on .toggle-thumb{transform:translateX(14px)}
     .ldot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
 
     /* ── Body ── */
@@ -432,6 +436,57 @@
       #mobile-view{display:none !important}
       #bottom-nav{display:none !important}
     }
+
+    /* ── PLAYER PROFILE MODAL ── */
+    .p-card{cursor:pointer}
+    .p-card:hover .p-img{border-color:var(--accent);transform:scale(1.06)}
+    .p-img{transition:transform .2s,border-color .2s}
+    #player-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,10,25,.55);backdrop-filter:blur(3px)}
+    #player-modal.open{display:flex;animation:fadeInUp .25s ease both}
+    #pm-card{position:relative;width:100%;max-width:640px;max-height:100%;overflow-y:auto;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);font-family:'DM Sans',sans-serif}
+    #pm-close{position:absolute;top:10px;right:10px;z-index:2;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.35);color:#fff;font-size:15px;cursor:pointer}
+    #pm-close:hover{background:rgba(0,0,0,.55)}
+    .pm-hero{position:relative;display:flex;align-items:flex-end;gap:16px;padding:22px 20px 16px;color:#fff;overflow:hidden}
+    .pm-hero-logo{position:absolute;right:-20px;top:-20px;height:170px;opacity:.15;pointer-events:none}
+    .pm-photo{width:118px;height:118px;border-radius:14px;object-fit:cover;object-position:top;background:rgba(255,255,255,.15);flex-shrink:0;border:2px solid rgba(255,255,255,.35)}
+    .pm-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;line-height:1}
+    .pm-sub{font-size:12px;opacity:.85;margin-top:4px}
+    .pm-team{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:3px 10px 3px 4px;border-radius:20px;background:rgba(255,255,255,.18);font-size:11px;font-weight:600}
+    .pm-team img{width:20px;height:20px;object-fit:contain}
+    .pm-body{padding:14px 18px 18px}
+    .pm-sec{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin:16px 0 8px}
+    .pm-sec:first-child{margin-top:2px}
+    .pm-bio{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+    .pm-bio div{background:var(--bg-right);border:1px solid var(--border-sub);border-radius:8px;padding:7px 10px}
+    .pm-bio b{display:block;font-size:9px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+    .pm-bio span{font-size:13px;font-weight:500}
+    .pm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:8px}
+    .pm-stat{text-align:center;background:var(--accent-bg);border:1px solid var(--border);border-radius:10px;padding:8px 4px}
+    .pm-stat-v{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);line-height:1}
+    .pm-stat-l{font-size:9px;font-weight:600;color:var(--text-3);letter-spacing:.06em;margin-top:2px}
+    .pm-teams{display:flex;flex-direction:column;gap:6px}
+    .pm-teams div{display:flex;align-items:center;gap:10px;font-size:12px}
+    .pm-teams img{width:26px;height:26px;object-fit:contain}
+    .pm-teams small{margin-left:auto;color:var(--text-3);font-size:11px;white-space:nowrap}
+    .pm-awards{display:flex;flex-wrap:wrap;gap:6px}
+    .pm-awards span{font-size:11px;padding:3px 9px;border-radius:12px;background:var(--bg-right);border:1px solid var(--border)}
+    .pm-awards b{color:var(--accent);margin-right:3px}
+    .pm-table-wrap{max-height:240px;overflow:auto;border:1px solid var(--border-sub);border-radius:8px}
+    .pm-table{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+    .pm-table th{position:sticky;top:0;background:var(--bg-left-head);color:var(--text-2);font-weight:600;font-size:9px;letter-spacing:.06em;padding:6px 8px;text-align:right}
+    .pm-table td{padding:5px 8px;text-align:right;border-top:1px solid var(--border-sub)}
+    .pm-table th:first-child,.pm-table td:first-child,.pm-table th:nth-child(2),.pm-table td:nth-child(2){text-align:left}
+    .pm-table tr.pm-career td{font-weight:700;background:var(--accent-bg)}
+    .pm-msg{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px}
+    .pm-msg .spin{display:inline-block;font-size:22px;animation:spin .8s linear infinite;margin-bottom:6px}
+    @media (max-width: 768px) {
+      #player-modal{padding:0;align-items:flex-end}
+      #pm-card{max-height:92%;border-radius:16px 16px 0 0}
+      .pm-photo{width:92px;height:92px}
+      .pm-name{font-size:26px}
+      .pm-stats{grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:6px}
+      .pm-stat-v{font-size:22px}
+    }
   </style>
 </head>
 <body>
@@ -441,10 +496,15 @@
   <div id="header-title" style="display:flex;align-items:center;gap:11px">
     <span style="font-size:24px">🏀</span>
     <div>
-      <div class="bebas" style="font-size:22px;letter-spacing:2px;line-height:1;color:var(--accent)">NBA UNITED STATES MAP</div>
+      <div id="league-title" class="bebas" style="font-size:22px;letter-spacing:2px;line-height:1;color:var(--accent)">NBA UNITED STATES MAP</div>
       <div class="subtitle" style="color:var(--text-2);font-size:11px;margin-top:1px">Clasificación · Equipos · Jugadores · Resultados</div>
     </div>
   </div>
+  <button id="league-toggle" onclick="toggleLeague()" title="Cambiar entre NBA y WNBA">
+    <span class="lg-opt active" id="lg-nba">NBA</span>
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    <span class="lg-opt" id="lg-wnba">WNBA</span>
+  </button>
   <div id="header-legend" style="display:flex;gap:12px;align-items:center">
     <span style="font-size:11px;color:var(--text-3)"><span class="ldot" id="ldot-team" style="background:#81c784;border:1px solid #4caf50"></span>Con equipo</span>
     <span style="font-size:11px;color:var(--text-3)"><span class="ldot" style="background:var(--accent)"></span>Seleccionado</span>
@@ -590,6 +650,22 @@
 // ═══════════════════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════════════════
+
+// League settings. The data globals below (TEAMS, STANDINGS_RAW, GAMES…) hold the
+// active league; toggleLeague() swaps their contents in place.
+const LEAGUES = {
+  nba:  { key:'nba',  name:'NBA',  espn:'nba',  title:'NBA UNITED STATES MAP',  icon:'🏀',
+          playoffScope:'conf',   playoffSpots:6, playin:[7,10], playoffLabel:'Playoffs (1-6)' },
+  wnba: { key:'wnba', name:'WNBA', espn:'wnba', title:'WNBA UNITED STATES MAP', icon:'🏀',
+          playoffScope:'league', playoffSpots:8, playin:null,   playoffLabel:'Playoffs (top 8 de la liga)' },
+};
+let LEAGUE = LEAGUES.nba;
+
+// League-wide playoff qualification (WNBA: top 8 overall regardless of conference)
+function isPlayoffTeam(t) {
+  const rank = [...STANDINGS_RAW].sort((a,b) => b.pct - a.pct || b.w - a.w).findIndex(x => x.abbr === t.abbr) + 1;
+  return rank > 0 && rank <= LEAGUE.playoffSpots;
+}
 
 const GAMES = [
   {home:"HOU",away:"MIN",hs:132,as:136,date:"11 Abr"},
@@ -860,7 +936,7 @@ function buildPanelMobile(stateName) {
   document.getElementById('panel-state-m').textContent = stateName;
   const unique = abbrs ? [...new Set(abbrs)] : [];
   document.getElementById('panel-count-m').textContent =
-    unique.length ? unique.length + ' equipo' + (unique.length!==1?'s':'') + ' NBA' : 'Sin equipo NBA';
+    unique.length ? unique.length + ' equipo' + (unique.length!==1?'s':'') + ' ' + LEAGUE.name : 'Sin equipo ' + LEAGUE.name;
 
   // Reuse desktop panel HTML
   const desktop = document.getElementById('panel-scroll');
@@ -903,7 +979,7 @@ function populateEmptyPanel() {
       if (!tm) return '';
       const conf = t.conf === 'East' ? '🔵 Conf. Este' : '🔴 Conf. Oeste';
       return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
-        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <img class="e-logo" src="${teamLogo(tm)}" onerror="this.style.opacity='.3'">
         <div style="flex:1;min-width:0">
           <div class="e-name">${tm.name}</div>
           <div class="e-sub">${conf}</div>
@@ -925,7 +1001,7 @@ function populateEmptyPanel() {
       if (!tm) return '';
       return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
         <span style="font-size:11px;font-weight:700;color:var(--text-3);width:14px;text-align:center;flex-shrink:0">${i+1}</span>
-        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <img class="e-logo" src="${teamLogo(tm)}" onerror="this.style.opacity='.3'">
         <div style="flex:1;min-width:0">
           <div class="e-name">${tm.name.split(' ').pop()}</div>
           <div class="e-sub">${tm.city}</div>
@@ -945,7 +1021,7 @@ function populateEmptyPanel() {
       if (!tm) return '';
       return `<div class="e-card" onclick="handleStandingClick('${t.abbr}')">
         <span style="font-size:11px;font-weight:700;color:var(--text-3);width:14px;text-align:center;flex-shrink:0">${i+1}</span>
-        <img class="e-logo" src="${logoUrl(tm.nbaId)}" onerror="this.style.opacity='.3'">
+        <img class="e-logo" src="${teamLogo(tm)}" onerror="this.style.opacity='.3'">
         <div style="flex:1;min-width:0">
           <div class="e-name">${tm.name.split(' ').pop()}</div>
           <div class="e-sub">${tm.city}</div>
@@ -964,7 +1040,7 @@ function populateEmptyPanel() {
       if (!ht || !at) return '';
       const homeWon = g.hs > g.as;
       return `<div class="e-card" onclick="handleStandingClick('${homeWon?g.home:g.away}')">
-        <img class="e-logo" src="${logoUrl(ht.nbaId)}" onerror="this.style.opacity='.3'">
+        <img class="e-logo" src="${teamLogo(ht)}" onerror="this.style.opacity='.3'">
         <div style="flex:1;min-width:0">
           <div class="e-name" style="font-size:10px">${ht.name.split(' ').pop()} vs ${at.name.split(' ').pop()}</div>
           <div class="e-sub">${g.date}</div>
@@ -989,6 +1065,13 @@ let highlightedAbbr = null;
 function logoUrl(nbaId) {
   return `https://cdn.nba.com/logos/nba/${nbaId}/global/L/logo.svg`;
 }
+// WNBA teams carry their own ESPN logo URL; NBA teams use the NBA CDN id
+function teamLogo(t) {
+  return t.logo || logoUrl(t.nbaId);
+}
+// For the avatar fallback inside onerror='…': encodeURIComponent leaves ' as is,
+// which would end the JS string for names like D'Angelo
+const avatarName = n => encodeURIComponent(n).replace(/'/g, '%27');
 
 
 // Scroll standings to show the highlighted team
@@ -1040,28 +1123,31 @@ function buildStandings(conf) {
     let confRank = 1;
     // Flatten all teams in conf order (by wins) for rank numbers
     const allSorted = [...teams].sort((a,b) => b.w - a.w || a.l - b.l);
+    // WNBA: playoff spots are league-wide, so the cut line goes after the conf's last qualifier
+    const lastPlayoffRank = LEAGUE.playoffScope === 'league'
+      ? allSorted.filter(isPlayoffTeam).length
+      : LEAGUE.playoffSpots;
 
     for (const [divName, divTeams] of divOrder) {
-      html += `<div class="div-label" style="color:var(--text-2)">${divName.toUpperCase()}</div>`;
+      if (divName) html += `<div class="div-label" style="color:var(--text-2)">${divName.toUpperCase()}</div>`;
       for (const t of divTeams.sort((a,b) => b.w - a.w || a.l - b.l)) {
         const rank = allSorted.findIndex(x => x.abbr === t.abbr) + 1;
-        const isPlayoff = rank <= 6;
-        const isPlayin  = rank >= 7 && rank <= 10;
+        const isPlayoff = LEAGUE.playoffScope === 'league' ? isPlayoffTeam(t) : rank <= LEAGUE.playoffSpots;
+        const isPlayin  = !!LEAGUE.playin && rank >= LEAGUE.playin[0] && rank <= LEAGUE.playin[1];
         const pctStr    = (t.pct * 100).toFixed(1) + '%';
         const diffStr   = (t.diff >= 0 ? '+' : '') + t.diff;
         const nbaTeam   = TEAMS[t.abbr];
-        const nbaId     = nbaTeam ? nbaTeam.nbaId : 0;
         const isHL      = t.abbr === highlightedAbbr;
 
         const badgeColor = isPlayoff ? 'var(--playoff-bar)' : isPlayin ? 'var(--playin-bar)' : 'var(--text-3)';
 
         const zoneClass = isPlayoff ? ' playoff' : isPlayin ? ' playin' : '';
-        const cutClass  = rank===6 ? ' playoff-line' : rank===10 ? ' playin-line' : '';
+        const cutClass  = rank===lastPlayoffRank ? ' playoff-line' : (LEAGUE.playin && rank===LEAGUE.playin[1]) ? ' playin-line' : '';
         const rowClass  = `s-row${isHL?' highlighted':''}${zoneClass}${cutClass}`;
 
         html += `<div class="${rowClass}" onclick="handleStandingClick('${t.abbr}')">
           <span class="s-rank" style="color:${badgeColor}">${rank}</span>
-          <img class="s-logo" src="${logoUrl(nbaId)}" alt="${t.abbr}"
+          <img class="s-logo" src="${nbaTeam ? teamLogo(nbaTeam) : ''}" alt="${t.abbr}"
             onerror="this.style.opacity='.3'" style="opacity:1">
           <span class="s-name">${t.name.replace('Los Angeles ','LA ')}</span>
           <span class="s-cell bold">${t.w}</span>
@@ -1078,13 +1164,13 @@ function buildStandings(conf) {
       <span style="display:flex;align-items:center;gap:4px">
         <span style="display:inline-block;width:3px;height:12px;border-radius:2px;background:var(--playoff-bar);vertical-align:middle"></span>
         <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--playoff-bg);border:1px solid var(--playoff-bar);vertical-align:middle"></span>
-        Playoffs (1-6)
+        ${LEAGUE.playoffLabel}
       </span>
-      <span style="display:flex;align-items:center;gap:4px">
+      ${LEAGUE.playin ? `<span style="display:flex;align-items:center;gap:4px">
         <span style="display:inline-block;width:3px;height:12px;border-radius:2px;background:var(--playin-bar);vertical-align:middle"></span>
         <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--playin-bg);border:1px solid var(--playin-bar);vertical-align:middle"></span>
-        Play-in (7-10)
-      </span>
+        Play-in (${LEAGUE.playin[0]}-${LEAGUE.playin[1]})
+      </span>` : ''}
       <span style="display:flex;align-items:center;gap:4px">
         <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--row-hover);border:1px solid var(--border);vertical-align:middle"></span>
         Fuera playoffs
@@ -1155,11 +1241,11 @@ function showForeignTeamPanel(abbr) {
   const bgGrad = `linear-gradient(135deg,${t.color}25 0%,transparent 100%)`;
 
   let playersHTML = '';
-  for (const p of t.players) {
+  for (const [i, p] of t.players.entries()) {
     playersHTML += `
-      <div class="p-card">
-        <img class="p-img" src="https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png" alt="${p.n}"
-          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
+      <div class="p-card" onclick="openPlayer('${abbr}', ${i})" title="Ver ficha">
+        <img class="p-img" src="${p.img || `https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png`}" alt="${p.n}"
+          onerror="this.src='https://ui-avatars.com/api/?name=${avatarName(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
         <div class="p-name">${p.n.split(' ').pop()}</div>
         <div class="p-pos">${p.p}</div>
       </div>`;
@@ -1179,7 +1265,7 @@ function showForeignTeamPanel(abbr) {
           <div class="g-dot" style="background:${won?'#22c55e':'rgba(150,150,150,.4)'}"></div>
           <span style="color:var(--text-3);font-size:9px;width:14px">${isHome?'vs':'@'}</span>
           <div class="g-opp-badge" style="background:${oppT?oppT.color:'#bbb'}">
-            <img src="${oppT?logoUrl(oppT.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+            <img src="${oppT?teamLogo(oppT):''}" style="width:100%;height:100%;object-fit:contain"
               onerror="this.style.display='none';this.parentNode.textContent='${oppAbbr}'">
           </div>
           <span style="color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px">${oppT?oppT.name:oppAbbr}</span>
@@ -1203,7 +1289,7 @@ function showForeignTeamPanel(abbr) {
         <div style="display:flex;align-items:center;gap:10px;background:var(--accent-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
           <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
             <div class="team-logo-box" style="background:${t.color};width:36px;height:36px;border-radius:8px;padding:3px">
-              <img src="${logoUrl(t.nbaId)}" style="width:100%;height:100%;object-fit:contain">
+              <img src="${teamLogo(t)}" style="width:100%;height:100%;object-fit:contain">
             </div>
             <div style="font-size:10px;font-weight:600;color:var(--text)">${abbr}</div>
           </div>
@@ -1214,7 +1300,7 @@ function showForeignTeamPanel(abbr) {
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
             <div class="team-logo-box" style="background:${oppT2?oppT2.color:'#888'};width:36px;height:36px;border-radius:8px;padding:3px">
-              <img src="${oppT2?logoUrl(oppT2.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+              <img src="${oppT2?teamLogo(oppT2):''}" style="width:100%;height:100%;object-fit:contain"
                 onerror="this.style.display='none';this.parentNode.textContent='${ng.opp}'">
             </div>
             <div style="font-size:10px;font-weight:600;color:var(--text)">${ng.opp}</div>
@@ -1235,17 +1321,17 @@ function showForeignTeamPanel(abbr) {
     <div class="team-card">
       <div class="team-top" style="background:${bgGrad}">
         <div style="position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;opacity:.07;pointer-events:none;overflow:hidden">
-          <img src="${logoUrl(t.nbaId)}" style="height:80px;width:auto">
+          <img src="${teamLogo(t)}" style="height:80px;width:auto">
         </div>
         <div class="team-logo-box" style="background:${t.color}">
-          <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain">
+          <img src="${teamLogo(t)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain">
         </div>
         <div style="flex:1;min-width:0">
           <div class="team-name">${t.name}</div>
           <div class="team-city">${t.city}</div>
           <div class="team-pills">
             <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}">${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</span>
-            <span class="pill pill-d">${t.div}</span>
+            ${t.div?`<span class="pill pill-d">${t.div}</span>`:''}
           </div>
         </div>
         ${games.length>0?`<div class="record-box"><div class="record-num" style="color:${recordColor}">${wins}-${games.length-wins}</div><div style="font-size:9px;color:var(--text-3)">últimos</div></div>`:''}
@@ -1282,6 +1368,7 @@ function getGames(abbr) {
 // Team background images (ESPN CDN - reliable in browser)
 // Using ESPN scoreboard team photos
 function getTeamBgUrl(abbr) {
+  if (TEAMS[abbr]?.logo) return TEAMS[abbr].logo;
   // ESPN uses lowercase 3-letter codes (mostly matching ours)
   const espnMap = {
     GSW:'gsw', NOP:'no', SAS:'sa', OKC:'okc', NYK:'ny', BKN:'bkn',
@@ -1310,17 +1397,17 @@ function buildPanel(stateName) {
   document.getElementById('clear-btn').style.display = 'inline-block';
 
   if (!abbrs) {
-    document.getElementById('panel-count').textContent = 'Sin equipo NBA';
+    document.getElementById('panel-count').textContent = 'Sin equipo ' + LEAGUE.name;
     document.getElementById('panel-scroll').innerHTML = `
       <div style="text-align:center;padding:40px 16px;color:var(--text-3)">
         <div style="font-size:32px;margin-bottom:10px">🏟️</div>
-        <div style="font-size:13px">Sin equipo NBA en este estado</div>
+        <div style="font-size:13px">Sin equipo ${LEAGUE.name} en este estado</div>
       </div>`;
     return;
   }
 
   const unique = [...new Set(abbrs)];
-  document.getElementById('panel-count').textContent = unique.length + ' equipo' + (unique.length !== 1 ? 's' : '') + ' NBA';
+  document.getElementById('panel-count').textContent = unique.length + ' equipo' + (unique.length !== 1 ? 's' : '') + ' ' + LEAGUE.name;
 
   let html = '';
   for (const abbr of unique) {
@@ -1331,11 +1418,11 @@ function buildPanel(stateName) {
     const bgGrad = `linear-gradient(135deg,${t.color}25 0%,transparent 100%)`;
 
     let playersHTML = '';
-    for (const p of t.players) {
+    for (const [i, p] of t.players.entries()) {
       playersHTML += `
-        <div class="p-card">
-          <img class="p-img" src="https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png" alt="${p.n}"
-            onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
+        <div class="p-card" onclick="openPlayer('${abbr}', ${i})" title="Ver ficha">
+          <img class="p-img" src="${p.img || `https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png`}" alt="${p.n}"
+            onerror="this.src='https://ui-avatars.com/api/?name=${avatarName(p.n)}&background=1a1a2e&color=ff8c00&size=58&bold=true'">
           <div class="p-name">${p.n.split(' ').pop()}</div>
           <div class="p-pos">${p.p}</div>
         </div>`;
@@ -1355,7 +1442,7 @@ function buildPanel(stateName) {
             <div class="g-dot" style="background:${won?'#22c55e':'rgba(150,150,150,.4)'}"></div>
             <span style="color:var(--text-3);font-size:9px;width:14px">${isHome?'vs':'@'}</span>
             <div class="g-opp-badge" style="background:${oppT?oppT.color:'#bbb'}">
-              <img src="${oppT ? logoUrl(oppT.nbaId) : ''}" style="width:100%;height:100%;object-fit:contain"
+              <img src="${oppT ? teamLogo(oppT) : ''}" style="width:100%;height:100%;object-fit:contain"
                 onerror="this.style.display='none';this.parentNode.textContent='${oppAbbr}'">
             </div>
             <span style="color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px">${oppT?oppT.name:oppAbbr}</span>
@@ -1382,7 +1469,7 @@ function buildPanel(stateName) {
           <div style="display:flex;align-items:center;gap:10px;background:var(--accent-bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px">
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
               <div class="team-logo-box" style="background:${t.color};width:36px;height:36px;border-radius:8px;padding:3px">
-                <img src="${logoUrl(t.nbaId)}" style="width:100%;height:100%;object-fit:contain">
+                <img src="${teamLogo(t)}" style="width:100%;height:100%;object-fit:contain">
               </div>
               <div style="font-size:10px;font-weight:600;color:var(--text)">${abbr}</div>
             </div>
@@ -1393,7 +1480,7 @@ function buildPanel(stateName) {
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
               <div class="team-logo-box" style="background:${oppT2?oppT2.color:'#888'};width:36px;height:36px;border-radius:8px;padding:3px">
-                <img src="${oppT2?logoUrl(oppT2.nbaId):''}" style="width:100%;height:100%;object-fit:contain"
+                <img src="${oppT2?teamLogo(oppT2):''}" style="width:100%;height:100%;object-fit:contain"
                   onerror="this.style.display='none';this.parentNode.style.display='flex';this.parentNode.style.color='#fff';this.parentNode.textContent='${ng.opp}'">
               </div>
               <div style="font-size:10px;font-weight:600;color:var(--text)">${ng.opp}</div>
@@ -1409,7 +1496,7 @@ function buildPanel(stateName) {
           <div class="team-hero-gradient" style="background:linear-gradient(to top, ${t.color}ee 0%, ${t.color}88 40%, transparent 100%)"></div>
           <div class="team-hero-content">
             <div class="team-hero-logo" style="background:${t.color}cc;backdrop-filter:blur(4px)">
-              <img src="${logoUrl(t.nbaId)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain"
+              <img src="${teamLogo(t)}" alt="${abbr}" style="width:100%;height:100%;object-fit:contain"
                 onerror="this.style.display='none';this.parentNode.textContent='${abbr}'">
             </div>
             <div class="team-hero-info">
@@ -1417,7 +1504,7 @@ function buildPanel(stateName) {
               <div class="team-hero-city">${t.city} · ${t.conf==='East'?'Conf. Este':'Conf. Oeste'}</div>
               <div class="team-pills" style="margin-top:5px">
                 <span class="pill ${t.conf==='East'?'pill-e':'pill-w'}" style="border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.9);background:rgba(255,255,255,.15)">${t.conf==='East'?'Este':'Oeste'}</span>
-                <span class="pill pill-d" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7);background:rgba(255,255,255,.1)">${t.div}</span>
+                ${t.div?`<span class="pill pill-d" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7);background:rgba(255,255,255,.1)">${t.div}</span>`:''}
               </div>
             </div>
             ${games.length>0?`<div class="team-hero-record">${wins}-${games.length-wins}</div>`:''}
@@ -1448,7 +1535,7 @@ function clearPanel() {
   document.getElementById('panel-header').style.display = 'none';
   document.getElementById('panel-scroll').style.display = 'none';
   document.getElementById('clear-btn').style.display = 'none';
-  document.getElementById('map-hint').textContent = 'Haz click en un estado para ver sus equipos NBA';
+  document.getElementById('map-hint').textContent = 'Haz click en un estado para ver sus equipos ' + LEAGUE.name;
   setMobileHint('Toca un estado para ver sus equipos');
   clearPanelMobile();
   buildStandings(currentConf);
@@ -1481,8 +1568,8 @@ function selectState(stateName, focusAbbr) {
   });
 
   const hint = STATE_TEAMS[stateName]
-    ? `${stateName} · ${[...new Set(STATE_TEAMS[stateName])].length} equipo(s) NBA`
-    : `${stateName} · Sin equipo NBA`;
+    ? `${stateName} · ${[...new Set(STATE_TEAMS[stateName])].length} equipo(s) ${LEAGUE.name}`
+    : `${stateName} · Sin equipo ${LEAGUE.name}`;
   document.getElementById('map-hint').textContent = hint;
   setMobileHint(hint);
   document.getElementById('clear-btn').style.display = 'inline-block';
@@ -1510,8 +1597,29 @@ const CITY_COORDS = {
 };
 
 // State → teams for tooltip
-function getTooltipHTML(stateName, stadiumUrl) {
-  const abbrs = STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
+function stateAbbrs(stateName) {
+  return STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
+}
+
+// In states with several teams, only the team(s) whose city dot is closest to the
+// cursor. Teams sharing a city (e.g. Lakers & Clippers) are returned together.
+function teamsAtPointer(event, stateName, proj, svgNode) {
+  const abbrs = stateAbbrs(stateName);
+  if (abbrs.length < 2) return abbrs;
+  const [x, y] = d3.pointer(event, svgNode);
+  const pos = a => CITY_COORDS[a] && proj(CITY_COORDS[a]);
+  let best = null, bestDist = Infinity;
+  for (const a of abbrs) {
+    const p = pos(a);
+    if (!p) continue;
+    const dist = (p[0] - x) ** 2 + (p[1] - y) ** 2;
+    if (dist < bestDist) { bestDist = dist; best = p; }
+  }
+  if (!best) return abbrs;
+  return abbrs.filter(a => { const p = pos(a); return p && p[0] === best[0] && p[1] === best[1]; });
+}
+
+function getTooltipHTML(stateName, stadiumUrl, abbrs = stateAbbrs(stateName)) {
 
   const imgHTML = stadiumUrl && stadiumUrl !== 'error' && stadiumUrl !== 'loading'
     ? `<img class="tt-stadium-img" id="tt-stadium" src="${stadiumUrl}"
@@ -1519,7 +1627,7 @@ function getTooltipHTML(stateName, stadiumUrl) {
     : `<div class="tt-stadium-placeholder">${stadiumUrl==='loading'?'<span style="font-size:11px;color:var(--text-3)">Cargando…</span>':'🏟️'}</div>`;
 
   if (!abbrs.length) {
-    return imgHTML + `<div class="tt-body"><div class="tt-state">${stateName}</div><div class="tt-empty">Sin equipo NBA</div></div>`;
+    return imgHTML + `<div class="tt-body"><div class="tt-state">${stateName}</div><div class="tt-empty">Sin equipo ${LEAGUE.name}</div></div>`;
   }
 
   const uniqueArenas = [...new Set(abbrs.map(a => ARENAS[a]).filter(Boolean))];
@@ -1533,7 +1641,7 @@ function getTooltipHTML(stateName, stadiumUrl) {
     const arena = uniqueArenas.length > 1 ? ARENAS[abbr] : '';
     return `${i > 0 ? '<div class="tt-divider"></div>' : ''}
     <div class="tt-team">
-      <img class="tt-logo" src="${logoUrl(t.nbaId)}" onerror="this.style.opacity='.3'">
+      <img class="tt-logo" src="${teamLogo(t)}" onerror="this.style.opacity='.3'">
       <div class="tt-info">
         <div class="tt-name">${t.name.replace('Los Angeles ','LA ')}</div>
         ${arena ? `<div class="tt-arena">🏟️ ${arena}</div>` : `<div class="tt-arena">${t.city}</div>`}
@@ -1606,17 +1714,19 @@ const ARENAS = {
 };
 
 // Tooltip show/hide — getElementById at call time (element is after script tag)
-async function showTooltip(event, stateName) {
+async function showTooltip(event, stateName, abbrs = stateAbbrs(stateName)) {
   const tt = document.getElementById('map-tooltip');
   if (!tt) return;
-  tt._currentState = stateName;
+  // Same content already showing (e.g. on mousemove) → just follow the cursor
+  const key = stateName + '|' + abbrs.join(',');
+  if (tt._currentKey === key && tt.classList.contains('visible')) { moveTooltip(event); return; }
+  tt._currentKey = key;
 
-  const abbrs = STATE_TEAMS[stateName] ? [...new Set(STATE_TEAMS[stateName])] : [];
   const firstAbbr = abbrs[0];
 
   // Show immediately with placeholder while image loads
   const cached = firstAbbr ? STADIUM_CACHE[firstAbbr] : null;
-  tt.innerHTML = getTooltipHTML(stateName, cached || 'loading');
+  tt.innerHTML = getTooltipHTML(stateName, cached || 'loading', abbrs);
   tt.classList.add('visible');
   moveTooltip(event);
 
@@ -1624,7 +1734,7 @@ async function showTooltip(event, stateName) {
   if (firstAbbr && !cached) {
     const imgUrl = await fetchStadiumImage(firstAbbr);
     // Only update if tooltip still shows same state
-    if (tt._currentState === stateName && tt.classList.contains('visible')) {
+    if (tt._currentKey === key && tt.classList.contains('visible')) {
       const placeholder = tt.querySelector('.tt-stadium-placeholder');
       if (placeholder && imgUrl !== 'error') {
         const img = document.createElement('img');
@@ -1670,10 +1780,12 @@ function buildMap(svgId, usData) {
       const name = NAMES[d.id.toString().padStart(2,'0')];
       if (name === selectedState) return;
       d3.select(this).attr('fill', getStateFill(name, true));
-      showTooltip(event, name);
+      showTooltip(event, name, teamsAtPointer(event, name, proj, svg.node()));
     })
-    .on('mousemove', function(event) {
-      moveTooltip(event);
+    .on('mousemove', function(event, d) {
+      const name = NAMES[d.id.toString().padStart(2,'0')];
+      if (name === selectedState) { moveTooltip(event); return; }
+      showTooltip(event, name, teamsAtPointer(event, name, proj, svg.node()));
     })
     .on('mouseout', function(event, d) {
       const name = NAMES[d.id.toString().padStart(2,'0')];
@@ -1718,7 +1830,7 @@ function buildMap(svgId, usData) {
       })
       .on('mouseover', (event) => {
         const stateName = Object.entries(STATE_TEAMS).find(([,sa]) => abbrs.some(a=>sa.includes(a)))?.[0];
-        if (stateName) showTooltip(event, stateName);
+        if (stateName) showTooltip(event, stateName, abbrs);
       })
       .on('mousemove', moveTooltip)
       .on('mouseout', hideTooltip);
@@ -1739,7 +1851,7 @@ function buildMap(svgId, usData) {
 
     // Team logo inside dot (small)
     g.append('image')
-      .attr('href', logoUrl(t.nbaId))
+      .attr('href', teamLogo(t))
       .attr('x', -7).attr('y', -7)
       .attr('width', 14).attr('height', 14)
       .attr('opacity', .0)  // hidden, dot is enough
@@ -1770,16 +1882,610 @@ function refreshAllMapFills() {
   });
 }
 
+let US_DATA = null;
+
+// Redraw both maps from scratch (city dots depend on the active league)
+function rebuildMaps() {
+  if (!US_DATA) return;
+  ['map-svg', 'map-svg-m'].forEach(id => {
+    d3.select('#' + id).selectAll('*').remove();
+    buildMap(id, US_DATA);
+  });
+}
+
 fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')
   .then(r => r.json())
   .then(us => {
-    buildMap('map-svg',   us);
-    buildMap('map-svg-m', us);
+    US_DATA = us;
+    rebuildMaps();
   });
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE DATA REFRESH (ESPN public API)
+// ═══════════════════════════════════════════════════════════════
+
+const ESPN_BASE = 'https://site.api.espn.com/apis';
+
+// ESPN abbr → our abbr mapping for the NBA (differences only). WNBA keeps ESPN abbrs.
+const ESPN_ABBR = {
+  'GS':'GSW','SA':'SAS','NO':'NOP','NY':'NYK','PHO':'PHX','UTAH':'UTA','WSH':'WAS',
+};
+function fixAbbr(a, lg = LEAGUE) { return lg.key === 'nba' ? (ESPN_ABBR[a] || a) : a; }
+
+async function espnJSON(url) {
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error(url + ' → ' + r.status);
+  return r.json();
+}
+
+const nowTime = () => new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+// Standings (NBA by division with level=3, WNBA by conference). Falls back to the
+// previous season when the current regular season hasn't started yet (all teams 0-0).
+async function fetchStandings(lg = LEAGUE) {
+  const parse = data => {
+    const out = [];
+    for (const conf of data.children || []) {
+      const confName = conf.name.includes('East') ? 'East' : 'West';
+      // level=3 → conference > division > entries; otherwise conference > entries
+      const groups = conf.children?.length ? conf.children : [conf];
+      for (const g of groups) {
+        for (const entry of g.standings?.entries || []) {
+          const abbr = fixAbbr(entry.team.abbreviation, lg);
+          const stats = {};
+          for (const s of entry.stats || []) stats[s.name] = s.value;
+          const w = stats.wins || 0, l = stats.losses || 0;
+          const div = conf.children?.length ? g.name : (lg.key === 'nba' ? (TEAMS[abbr]?.div || '') : '');
+          out.push({
+            abbr, name: entry.team.displayName, conf: confName, div, w, l,
+            pf: +(stats.avgPointsFor || 0).toFixed(1),
+            pa: +(stats.avgPointsAgainst || 0).toFixed(1),
+            streakVal: stats.streak || 0,
+            logo: entry.team.logos?.[0]?.href || '', location: entry.team.location || '',
+          });
+        }
+      }
+    }
+    const season = data.children?.[0]?.children?.[0]?.standings?.seasonDisplayName
+                || data.children?.[0]?.standings?.seasonDisplayName || '';
+    return { teams: out, season };
+  };
+
+  const url = `${ESPN_BASE}/v2/sports/basketball/${lg.espn}/standings?seasontype=2${lg.key === 'nba' ? '&level=3' : ''}`;
+  const cur = await espnJSON(url);
+  let res = parse(cur);
+  let year = cur.seasons?.[0]?.year;
+  const played = res.teams.reduce((n, t) => n + t.w + t.l, 0);
+  if (played === 0 && year) {
+    year -= 1;
+    res = parse(await espnJSON(`${url}&season=${year}`));
+  }
+  return { ...res, year };
+}
+
+function enrichStandings(teams) {
+  return teams.map(t => {
+    const { streakVal, logo, location, ...rest } = t;
+    const gp = t.w + t.l;
+    return { ...rest, gp, pct: gp > 0 ? t.w / gp : 0, diff: +(t.pf - t.pa).toFixed(1), streak: streakVal >= 0 ? 'G' : 'P' };
+  });
+}
+
+// The NBA scoreboard no longer accepts date ranges, so query day by day.
+async function fetchScoreboardDays(lg, fromOffset, toOffset) {
+  const days = [];
+  for (let i = fromOffset; i <= toOffset; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    days.push(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
+  }
+  const results = await Promise.allSettled(
+    days.map(day => espnJSON(`${ESPN_BASE}/site/v2/sports/basketball/${lg.espn}/scoreboard?dates=${day}`))
+  );
+  return results.filter(r => r.status === 'fulfilled').flatMap(r => r.value.events || []);
+}
+
+// ESPN events → finished games (chronological), each team's next game, and each
+// team's most used regular-season home venue.
+function parseEvents(events, lg = LEAGUE, teams = TEAMS) {
+  const games = [], next = {}, venueCount = {};
+  const sorted = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+  for (const ev of sorted) {
+    if (ev.season?.type === 1) continue; // skip preseason
+    const comp = ev.competitions?.[0];
+    const home = comp?.competitors?.find(t => t.homeAway === 'home');
+    const away = comp?.competitors?.find(t => t.homeAway === 'away');
+    if (!home || !away) continue;
+    const hAbbr = fixAbbr(home.team.abbreviation, lg);
+    const aAbbr = fixAbbr(away.team.abbreviation, lg);
+    if (!teams[hAbbr] || !teams[aAbbr]) continue; // All-Star / exhibition teams
+    const evDate = new Date(ev.date);
+    const dateStr = evDate.toLocaleDateString('es-ES',{day:'numeric',month:'short'}).replace('.','');
+    const timeStr = evDate.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    const state = comp.status?.type?.state;
+    if (state === 'post') {
+      games.push({ home:hAbbr, away:aAbbr, hs:parseInt(home.score)||0, as:parseInt(away.score)||0, date:dateStr });
+    } else if (state === 'pre') {
+      // Events are sorted, so keep only each team's first upcoming game
+      if (!next[hAbbr]) next[hAbbr] = {opp:aAbbr, isHome:true,  date:dateStr, time:timeStr};
+      if (!next[aAbbr]) next[aAbbr] = {opp:hAbbr, isHome:false, date:dateStr, time:timeStr};
+    }
+    const v = comp.venue;
+    if (v?.fullName && ev.season?.type === 2) {
+      const byName = venueCount[hAbbr] ||= {};
+      const entry = byName[v.fullName] ||= { name: v.fullName, city: v.address?.city, state: v.address?.state, n: 0 };
+      entry.n++;
+    }
+  }
+  const venues = {};
+  for (const [abbr, byName] of Object.entries(venueCount)) {
+    venues[abbr] = Object.values(byName).sort((a, b) => b.n - a.n)[0];
+  }
+  return { games, next, venues };
+}
+
+function setRefreshUI(loading, text) {
+  ['', '-m'].forEach(sfx => {
+    const btn = document.getElementById('refresh-btn' + sfx);
+    const status = document.getElementById('refresh-status' + sfx);
+    if (btn) { btn.disabled = loading; btn.classList.toggle('spinning', loading); }
+    if (status && text) status.textContent = text;
+  });
+}
+
+// ── WNBA (loaded live from ESPN) ───────────────────────────────
+
+const US_STATES = {
+  AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',
+  DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',
+  IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',
+  MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',
+  NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',
+  NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',
+  RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',
+  VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',
+};
+const CA_PROVINCES = ['ON','QC','BC','AB','MB','SK','NS','NB','NL','PE'];
+
+// What ESPN doesn't give us: map coordinates [lon, lat] and arena Wikipedia titles.
+// `state` is only a fallback when no home game (with venue) is available.
+const WNBA_HOME = {
+  ATL:{state:'GA', coords:[-84.45, 33.65],  wiki:'Gateway_Center_Arena'},
+  CHI:{state:'IL', coords:[-87.62, 41.86],  wiki:'Wintrust_Arena'},
+  CON:{state:'CT', coords:[-72.09, 41.49],  wiki:'Mohegan_Sun_Arena'},
+  DAL:{state:'TX', coords:[-97.11, 32.73],  wiki:'College_Park_Center'},
+  GS: {state:'CA', coords:[-122.39, 37.77], wiki:'Chase_Center_(San_Francisco)'},
+  IND:{state:'IN', coords:[-86.16, 39.76],  wiki:'Gainbridge_Fieldhouse'},
+  LV: {state:'NV', coords:[-115.18, 36.09], wiki:'Michelob_Ultra_Arena'},
+  LA: {state:'CA', coords:[-118.27, 34.04], wiki:'Crypto.com_Arena'},
+  MIN:{state:'MN', coords:[-93.28, 44.98],  wiki:'Target_Center'},
+  NY: {state:'NY', coords:[-73.98, 40.68],  wiki:'Barclays_Center'},
+  PHX:{state:'AZ', coords:[-112.07, 33.45], wiki:'Footprint_Center'},
+  POR:{state:'OR', coords:[-122.67, 45.53], wiki:'Moda_Center'},
+  SEA:{state:'WA', coords:[-122.35, 47.62], wiki:'Climate_Pledge_Arena'},
+  TOR:{state:'ON', coords:[-79.42, 43.64],  wiki:'Coca-Cola_Coliseum'},
+  WSH:{state:'DC', coords:[-76.99, 38.87],  wiki:'CareFirst_Arena'},
+};
+
+// Builds a full data set (same shape as snapshotLeagueData) for the WNBA
+async function loadWNBA() {
+  const lg = LEAGUES.wnba;
+  const site = `${ESPN_BASE}/site/v2/sports/basketball/${lg.espn}`;
+  // Note: ESPN's /teams endpoints send no CORS header, so team info comes from the
+  // standings (name, city, logo) and the scoreboard (colors) instead.
+  const standings = await fetchStandings(lg);
+  if (standings.teams.length < 10) throw new Error('WNBA standings incomplete');
+
+  // Whole season in one request (the WNBA scoreboard accepts dates=YYYY) + top scorers
+  const [sb, stats] = await Promise.allSettled([
+    espnJSON(`${site}/scoreboard?dates=${standings.year}&limit=1000`),
+    espnJSON(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/${lg.espn}/statistics/byathlete?season=${standings.year}&seasontype=2&limit=200&sort=offensive.avgPoints:desc`),
+  ]);
+
+  const colors = {};
+  for (const ev of sb.value?.events || []) {
+    for (const c of ev.competitions?.[0]?.competitors || []) {
+      if (c.team?.color) colors[c.team.abbreviation] = c.team;
+    }
+  }
+
+  const teams = {};
+  for (const s of standings.teams) {
+    const c = colors[s.abbr];
+    teams[s.abbr] = {
+      logo: s.logo, name: s.name, city: s.location, conf: s.conf, div: '',
+      color: '#' + (c?.color || '888888'), alt: '#' + (c?.alternateColor || c?.color || '444444'),
+      players: [],
+    };
+  }
+
+  // Featured players: each team's 4 top scorers
+  for (const { athlete: a } of stats.value?.athletes || []) {
+    const t = teams[a.teamShortName];
+    if (t && t.players.length < 4) {
+      t.players.push({ n: a.displayName, p: a.position?.abbreviation || '', img: a.headshot?.href || '', espnId: a.id });
+    }
+  }
+
+  const { games, next, venues } = parseEvents(sb.value?.events || [], lg, teams);
+  const stateTeams = {}, coords = {}, arenas = {}, arenaWiki = {};
+  for (const [abbr, t] of Object.entries(teams)) {
+    const v = venues[abbr], home = WNBA_HOME[abbr];
+    const code = v?.state || home?.state;
+    if (v) { arenas[abbr] = v.name; if (v.city) t.city = v.city; }
+    if (CA_PROVINCES.includes(code)) t.city += ', Canadá';
+    // DC teams also light up the neighbouring states, as the NBA's Wizards do
+    const states = code === 'DC' ? ['District of Columbia', 'Maryland', 'Virginia'] : US_STATES[code] ? [US_STATES[code]] : [];
+    states.forEach(s => (stateTeams[s] ||= []).push(abbr));
+    if (home) coords[abbr] = home.coords;
+    const wiki = home?.wiki || (v ? encodeURIComponent(v.name.replace(/ /g, '_')) : '');
+    if (wiki) arenaWiki[abbr] = wiki;
+  }
+
+  return {
+    TEAMS: teams, STATE_TEAMS: stateTeams, STANDINGS_RAW: enrichStandings(standings.teams),
+    GAMES: games, NEXT_GAMES: next, CITY_COORDS: coords, ARENAS: arenas, ARENA_WIKI: arenaWiki,
+    status: `${lg.name} ${standings.season} · Act. ${nowTime()}`,
+  };
+}
+
+// ── League switch ─────────────────────────────────────────────
+
+// Data sets of the inactive league, so switching back is instant
+const LEAGUE_DATA = {};
+let leagueSwitching = false;
+let switchStatus = '';   // status of the league being left, saved with its snapshot
+const staleLeagues = new Set();   // leagues whose refresh was discarded by a switch
+
+function snapshotLeagueData() {
+  return structuredClone({
+    TEAMS, STATE_TEAMS, STANDINGS_RAW, GAMES, NEXT_GAMES, CITY_COORDS, ARENAS, ARENA_WIKI,
+    status: document.getElementById('refresh-status').textContent,
+  });
+}
+
+function replaceContents(target, src) {
+  if (Array.isArray(target)) { target.length = 0; target.push(...src); return; }
+  Object.keys(target).forEach(k => delete target[k]);
+  Object.assign(target, src);
+}
+
+function applyLeagueData(d) {
+  replaceContents(TEAMS, d.TEAMS);
+  replaceContents(STATE_TEAMS, d.STATE_TEAMS);
+  replaceContents(STANDINGS_RAW, d.STANDINGS_RAW);
+  replaceContents(GAMES, d.GAMES);
+  replaceContents(CITY_COORDS, d.CITY_COORDS);
+  replaceContents(ARENAS, d.ARENAS);
+  replaceContents(ARENA_WIKI, d.ARENA_WIKI);
+  NEXT_GAMES = d.NEXT_GAMES;
+  // Stadium images are cached by abbr, which both leagues share (ATL, CHI…)
+  Object.keys(STADIUM_CACHE).forEach(k => delete STADIUM_CACHE[k]);
+}
+
+function renderLeague() {
+  document.getElementById('league-title').textContent = LEAGUE.title;
+  document.title = `${LEAGUE.name} USA Map`;
+  document.getElementById('league-toggle').classList.toggle('on', LEAGUE.key === 'wnba');
+  document.getElementById('lg-nba').classList.toggle('active', LEAGUE.key === 'nba');
+  document.getElementById('lg-wnba').classList.toggle('active', LEAGUE.key === 'wnba');
+  hideTooltip();
+  clearPanel();   // resets selection, hints and standings
+  rebuildMaps();
+  populateEmptyPanel();
+}
+
+async function toggleLeague() {
+  if (leagueSwitching) return;
+  const target = LEAGUE.key === 'nba' ? LEAGUES.wnba : LEAGUES.nba;
+  const btn = document.getElementById('league-toggle');
+  leagueSwitching = true;
+  btn.disabled = true;
+  // Read before "Cargando…" overwrites it; a refresh finishing meanwhile updates it
+  switchStatus = document.getElementById('refresh-status').textContent;
+  try {
+    // Only the WNBA lacks a bundled data set, so it's the only one ever fetched here
+    let data = LEAGUE_DATA[target.key];
+    if (!data) {
+      setRefreshUI(true, `Cargando ${target.name}…`);
+      data = await loadWNBA();
+    }
+    // Snapshot after loading, so data from a refresh that finished meanwhile is kept
+    LEAGUE_DATA[LEAGUE.key] = { ...snapshotLeagueData(), status: switchStatus };
+    LEAGUE = target;
+    applyLeagueData(data);
+    renderLeague();
+    setRefreshUI(false, data.status);
+  } catch (err) {
+    console.error('League switch error:', err);
+    setRefreshUI(false, `⚠ No se pudo cargar ${target.name}`);
+  } finally {
+    leagueSwitching = false;
+    btn.disabled = false;
+  }
+  // Back on a league whose refresh was discarded mid-flight: load it again
+  if (staleLeagues.delete(LEAGUE.key)) refreshData();
+}
+
+// ── Refresh button ────────────────────────────────────────────
+
+// ESPN roster slugs that differ from our abbreviations
+const ROSTER_SLUG = { GSW:'gs', SAS:'sa', NOP:'no', NYK:'ny', UTA:'utah', WAS:'wsh' };
+
+// Current NBA rosters (the /roster endpoint does send CORS headers, unlike /teams).
+// Featured players = each team's 4 best scorers of `statsYear`; newcomers without stats go last.
+async function fetchNBARosters(lg, statsYear) {
+  const abbrs = Object.keys(TEAMS);
+  const [stats, ...rosters] = await Promise.allSettled([
+    espnJSON(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/${lg.espn}/statistics/byathlete?season=${statsYear}&seasontype=2&limit=400&sort=offensive.avgPoints:desc`),
+    ...abbrs.map(a => espnJSON(`${ESPN_BASE}/site/v2/sports/basketball/${lg.espn}/teams/${ROSTER_SLUG[a] || a.toLowerCase()}/roster`)),
+  ]);
+  const ppg = {};
+  const off = stats.value?.categories?.find(c => c.name === 'offensive');
+  const idx = off?.names?.indexOf('avgPoints') ?? -1;
+  for (const a of stats.value?.athletes || []) {
+    const v = a.categories?.find(c => c.name === 'offensive')?.values?.[idx];
+    if (v != null) ppg[a.athlete.id] = v;
+  }
+  const players = {};
+  rosters.forEach((r, i) => {
+    const athletes = r.value?.athletes;
+    if (!athletes?.length) return;
+    players[abbrs[i]] = [...athletes]
+      .sort((x, y) => (ppg[y.id] ?? -1) - (ppg[x.id] ?? -1))
+      .slice(0, 4)
+      .map(x => ({ n: x.displayName, p: x.position?.abbreviation || '', img: x.headshot?.href || '', espnId: x.id }));
+  });
+  return players;
+}
+
+// Thrown when the user switches league while an NBA refresh is in flight: both
+// leagues share the data globals (and abbreviations like ATL), so nothing is written.
+class StaleRefresh extends Error {}
+const ensureNBA = () => { if (LEAGUE.key !== 'nba') throw new StaleRefresh(); };
+
+async function refreshNBA() {
+  const lg = LEAGUES.nba;
+  // Fetch everything first, then write only if the NBA is still on screen
+  const { teams, season, year } = await fetchStandings(lg);
+  const [players, events] = await Promise.all([
+    year ? fetchNBARosters(lg, year) : {},
+    fetchScoreboardDays(lg, -7, 7),
+  ]);
+  ensureNBA();
+  if (teams.length >= 20) replaceContents(STANDINGS_RAW, enrichStandings(teams));
+  for (const [abbr, list] of Object.entries(players)) TEAMS[abbr].players = list;
+
+  // Recent results (last 7 days) + upcoming (next 7 days)
+  const { games, next } = parseEvents(events, lg);
+  if (games.length > 0) replaceContents(GAMES, games);
+  if (Object.keys(next).length > 0) NEXT_GAMES = next;
+  return `${season ? season + ' · ' : ''}Act. ${nowTime()}`;
+}
+
+async function refreshData() {
+  if (leagueSwitching) return;
+  const lgKey = LEAGUE.key;
+  setRefreshUI(true, 'Conectando…');
+  try {
+    let status;
+    if (LEAGUE.key === 'nba') {
+      status = await refreshNBA();
+    } else {
+      const data = await loadWNBA();
+      if (LEAGUE.key !== 'wnba') throw new StaleRefresh();
+      applyLeagueData(data);
+      rebuildMaps();
+      status = data.status;
+    }
+    // A league switch in progress owns the UI; it stores this status with the snapshot
+    if (leagueSwitching) { switchStatus = status; return; }
+    if (selectedState) buildPanel(selectedState);
+    else { buildStandings(currentConf); populateEmptyPanel(); }
+    setRefreshUI(false, status);
+  } catch (err) {
+    // Leave the UI to the league switch that made this refresh stale
+    if (err instanceof StaleRefresh) { staleLeagues.add(lgKey); if (!leagueSwitching) setRefreshUI(false); return; }
+    console.error('Refresh error:', err);
+    setRefreshUI(false, '⚠ Sin conexión');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PLAYER PROFILE (ESPN athlete API)
+// ═══════════════════════════════════════════════════════════════
+
+const ESPN_WEB = 'https://site.web.api.espn.com/apis';
+const ESPN_LEAGUE_UID = { nba: '~l:46~a:', wnba: '~l:59~a:' };
+const PLAYER_CACHE = {};
+let playerRequest = 0;
+
+// NBA players are stored with NBA.com ids, so look up their ESPN id by name
+async function resolveEspnId(p, lg) {
+  if (p.espnId) return p.espnId;
+  const r = await espnJSON(`${ESPN_WEB}/search/v2?query=${encodeURIComponent(p.n)}&limit=10&type=player`);
+  const hit = (r.results || []).filter(x => x.type === 'player').flatMap(x => x.contents || [])
+    .find(c => c.uid?.includes(ESPN_LEAGUE_UID[lg.key]));
+  if (!hit) throw new Error('Jugador no encontrado en ESPN: ' + p.n);
+  p.espnId = hit.uid.split('~a:')[1];
+  return p.espnId;
+}
+
+async function fetchPlayer(espnId, lg) {
+  const key = lg.key + ':' + espnId;
+  if (PLAYER_CACHE[key]) return PLAYER_CACHE[key];
+  const base = `${ESPN_WEB}/common/v3/sports/basketball/${lg.espn}/athletes/${espnId}`;
+  const [info, stats, bio] = await Promise.allSettled([espnJSON(base), espnJSON(base + '/stats'), espnJSON(base + '/bio')]);
+  if (info.status !== 'fulfilled') throw info.reason;
+  return PLAYER_CACHE[key] = { athlete: info.value.athlete, stats: stats.value, bio: bio.value };
+}
+
+// 6' 9" → 2,06 m
+function toMeters(h) {
+  const m = /(\d+)'\s*(\d+)/.exec(h || '');
+  return m ? (((+m[1] * 12 + +m[2]) * 2.54) / 100).toFixed(2).replace('.', ',') + ' m' : (h || '—');
+}
+// 250 lbs → 113 kg
+function toKg(w) {
+  const m = /(\d+)/.exec(w || '');
+  return m ? Math.round(+m[1] * 0.4536) + ' kg' : (w || '—');
+}
+
+const AWARDS_ES = {
+  'MVP':'MVP', 'Finals MVP':'MVP de las Finales', 'All-Star MVP':'MVP del All-Star',
+  'Rookie of the Year':'Rookie del Año', 'Defensive Player of the Year':'Mejor Defensor del Año',
+  'Sixth Man of the Year':'Mejor Sexto Hombre', 'Sixth Player of the Year':'Mejor Sexta Jugadora',
+  'Most Improved Player':'Jugador Más Mejorado', 'Clutch Player of the Year':'Jugador Clutch del Año',
+  'NBA Cup MVP':'MVP de la NBA Cup', 'NBA Cup All-Tournament Team':'Quinteto de la NBA Cup',
+  'All-Rookie Team':'Quinteto de Rookies',
+};
+function awardES(name) {
+  if (AWARDS_ES[name]) return AWARDS_ES[name];
+  const m = /^All-(NBA|WNBA|Defensive|Rookie) (1st|2nd|3rd) Team$/.exec(name);
+  if (!m) return name;
+  const what = { Defensive: 'Defensivo', Rookie: 'de Rookies' }[m[1]] || m[1];
+  return `${m[1] === 'NBA' || m[1] === 'WNBA' ? 'All-' + what : 'Quinteto ' + what} (${m[2][0]}º)`;
+}
+
+const POSITIONS_ES = {
+  'Point Guard':'Base', 'Shooting Guard':'Escolta', 'Guard':'Base/Escolta', 'Small Forward':'Alero',
+  'Power Forward':'Ala-pívot', 'Forward':'Alero/Ala-pívot', 'Center':'Pívot',
+  'Guard-Forward':'Escolta-Alero', 'Forward-Center':'Ala-pívot/Pívot',
+};
+// "2003: Rd 1, Pk 1 (CLE)" → "2003: 1ª ronda, nº 1 (CLE)"
+const draftES = d => d.replace(/Rd (\d+), Pk (\d+)/, '$1ª ronda, nº $2');
+
+function closePlayer() {
+  playerRequest++;
+  document.getElementById('player-modal').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+
+function playerHero(name, sub, photo, t, team) {
+  const color = t?.color || '#333';
+  const logo = t ? teamLogo(t) : team?.logo; // match the hero's team colors
+  return `
+    <div class="pm-hero" style="background:linear-gradient(135deg,${color} 0%,${t?.alt || color} 140%)">
+      ${logo ? `<img class="pm-hero-logo" src="${logo}" onerror="this.remove()">` : ''}
+      <img class="pm-photo" src="${photo}" alt="${name}"
+        onerror="this.src='https://ui-avatars.com/api/?name=${avatarName(name)}&background=1a1a2e&color=ff8c00&size=118&bold=true'">
+      <div style="position:relative;min-width:0">
+        <div class="pm-name">${name}</div>
+        <div class="pm-sub">${sub}</div>
+        ${team ? `<div class="pm-team">${team.logo ? `<img src="${team.logo}">` : ''}${team.name}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function openPlayer(abbr, idx) {
+  const t = TEAMS[abbr];
+  const p = t?.players?.[idx];
+  if (!p) return;
+  const lg = LEAGUE;
+  const req = ++playerRequest;
+  const card = document.getElementById('pm-card');
+  const photo = p.img || `https://cdn.nba.com/headshots/nba/latest/260x190/${p.id}.png`;
+  hideTooltip();
+
+  card.innerHTML = `<button id="pm-close" onclick="closePlayer()" aria-label="Cerrar">✕</button>
+    ${playerHero(p.n, p.p, photo, t)}
+    <div class="pm-msg"><div class="spin">↻</div><br>Cargando ficha…</div>`;
+  document.getElementById('player-modal').classList.add('open');
+  card.scrollTop = 0;
+
+  try {
+    const data = await fetchPlayer(await resolveEspnId(p, lg), lg);
+    if (req !== playerRequest) return; // closed or another player opened meanwhile
+    card.innerHTML = `<button id="pm-close" onclick="closePlayer()" aria-label="Cerrar">✕</button>` + playerProfileHTML(data, p, t, photo);
+  } catch (err) {
+    console.error('Player profile error:', err);
+    if (req !== playerRequest) return;
+    card.querySelector('.pm-msg').innerHTML = '⚠ No se pudo cargar la ficha de este jugador';
+  }
+}
+
+function playerProfileHTML({ athlete: a, stats, bio }, p, t, photo) {
+  const pos = POSITIONS_ES[a.position?.displayName] || a.position?.displayName || p.p;
+  const sub = [a.displayJersey || (a.jersey ? '#' + a.jersey : ''), pos].filter(Boolean).join(' · ');
+  const team = a.team ? { name: a.team.displayName, logo: a.team.logos?.[0]?.href || a.team.logo } : null;
+  let html = playerHero(a.displayName || p.n, sub, a.headshot?.href || photo, t, team) + '<div class="pm-body">';
+
+  // ── Bio ──
+  const exp = /^(\d+)/.exec(a.displayExperience || '');
+  const bioItems = [
+    ['Edad', a.age ? a.age + ' años' : null],
+    ['Nacimiento', a.displayDOB],
+    ['Lugar de nacimiento', a.displayBirthPlace],
+    ['Estatura', a.displayHeight ? toMeters(a.displayHeight) : null],
+    ['Peso', a.displayWeight ? toKg(a.displayWeight) : null],
+    ['Draft', a.displayDraft ? draftES(a.displayDraft) : (a.debutYear ? 'No drafteado' : null)],
+    ['Universidad', a.college?.name],
+    ['Experiencia', exp ? (+exp[1] === 1 ? 'Rookie' : exp[1] + 'ª temporada') : a.displayExperience],
+    ['Debut', a.debutYear],
+  ].filter(([, v]) => v);
+  html += `<div class="pm-sec">Ficha</div><div class="pm-bio">${bioItems.map(([k, v]) => `<div><b>${k}</b><span>${v}</span></div>`).join('')}</div>`;
+
+  // ── Current season ──
+  const summary = a.statsSummary?.statistics || [];
+  if (summary.length) {
+    const title = (a.statsSummary.displayName || '').replace(/^(\S+) regular season stats$/i, 'Temporada regular $1')
+      .replace(/^(\S+) postseason stats$/i, 'Playoffs $1');
+    const label = { PPG:'PTS', RPG:'REB', APG:'AST', SPG:'ROB', BPG:'TAP', 'FG%':'TC%' };
+    html += `<div class="pm-sec">${title || 'Esta temporada'} · promedios</div><div class="pm-stats">
+      ${summary.map(s => `<div class="pm-stat"><div class="pm-stat-v">${s.displayValue}</div><div class="pm-stat-l">${label[s.shortDisplayName] || s.shortDisplayName}</div></div>`).join('')}
+    </div>`;
+  }
+
+  // ── Season by season + career averages ──
+  const avg = stats?.categories?.find(c => c.name === 'averages');
+  if (avg?.statistics?.length) {
+    const col = name => avg.labels.indexOf(name);
+    const cols = [['PJ','GP'], ['MIN','MIN'], ['PTS','PTS'], ['REB','REB'], ['AST','AST'], ['TC%','FG%'], ['T3%','3P%']].filter(([, k]) => col(k) >= 0);
+    const teamAbbr = slug => stats.teams?.[slug]?.abbreviation || '';
+    const rows = [...avg.statistics].reverse().map(r =>
+      `<tr><td>${r.season?.displayName || ''}</td><td>${teamAbbr(r.teamSlug)}</td>${cols.map(([, k]) => `<td>${r.stats[col(k)] ?? ''}</td>`).join('')}</tr>`).join('');
+    const career = avg.totals ? `<tr class="pm-career"><td>Carrera</td><td></td>${cols.map(([, k]) => `<td>${avg.totals[col(k)] ?? ''}</td>`).join('')}</tr>` : '';
+
+    if (avg.totals) {
+      const tile = (k, l) => col(k) >= 0 ? `<div class="pm-stat"><div class="pm-stat-v">${avg.totals[col(k)]}</div><div class="pm-stat-l">${l}</div></div>` : '';
+      html += `<div class="pm-sec">Promedios de carrera</div><div class="pm-stats">
+        ${tile('GP','PARTIDOS')}${tile('PTS','PTS')}${tile('REB','REB')}${tile('AST','AST')}${tile('FG%','TC%')}
+      </div>`;
+    }
+    html += `<div class="pm-sec">Temporada a temporada</div><div class="pm-table-wrap"><table class="pm-table">
+      <thead><tr><th>Temp.</th><th>Equipo</th>${cols.map(([l]) => `<th>${l}</th>`).join('')}</tr></thead>
+      <tbody>${career}${rows}</tbody></table></div>`;
+  }
+
+  // ── Career path ──
+  const history = bio?.teamHistory || [];
+  if (history.length) {
+    html += `<div class="pm-sec">Trayectoria</div><div class="pm-teams">
+      ${history.map(h => `<div>${h.logo ? `<img src="${h.logo}" onerror="this.style.visibility='hidden'">` : ''}<span>${h.displayName}</span>
+        <small>${(h.seasons || '').replace('CURRENT', 'actualidad')}</small></div>`).join('')}
+    </div>`;
+  }
+
+  // ── Awards ──
+  const awards = bio?.awards || [];
+  if (awards.length) {
+    html += `<div class="pm-sec">Palmarés</div><div class="pm-awards">
+      ${awards.map(w => `<span title="${(w.seasons || []).join(', ')}"><b>${w.displayCount || ''}</b>${awardES(w.name)}</span>`).join('')}
+    </div>`;
+  }
+
+  return html + '</div>';
+}
+
 // Init standings
 buildStandings('east');
 populateEmptyPanel();
+// Start from live data: the bundled standings and rosters are only a fallback
+refreshData();
 </script>
 <div id="map-tooltip"></div>
+<div id="player-modal" onclick="if(event.target===this)closePlayer()">
+  <div id="pm-card" role="dialog" aria-modal="true"></div>
+</div>
 </body>
 </html>
